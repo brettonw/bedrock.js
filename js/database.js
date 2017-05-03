@@ -4,24 +4,19 @@ let Database = function () {
     let makeSelect = function (id, keys, value, ghost) {
         let optionsHTML = "";
         if (keys.length > 1) {
-            optionsHTML = block ("option", { "value": "" }, "(" + ghost + ")");
+            optionsHTML = block ("option", { value: "" }, "(" + ghost + ")");
         }
         for (let key of keys) {
             //let encodedName = encodeURIComponent (key).toLowerCase ();
             //let selectedAttr = (encodedName == value) ? " selected" : "";
-            let attributes = { "value": key };
+            let attributes = { value: key };
             if (key === value) {
                 attributes.selected = "selected";
             }
             optionsHTML += block ("option", attributes, key);
         }
 
-        let innerHTML = block ("select", {
-            "class": "filterElementListContainer",
-            "id": id,
-            //"disabled":"disabled",
-            "onchange": "theFilter.onValueChange (this);"
-        }, optionsHTML);
+        let innerHTML = block ("select", { class: "bedrockElementListContainer", id: id, onchange: "theFilter.onValueChange (this);" }, optionsHTML);
         return innerHTML;
     };
 
@@ -64,8 +59,7 @@ let Database = function () {
         let _ = Object.create (null);
 
         _.new = function (parameters) {
-            let newObject = Object.create (this);
-            return newObject.init (parameters);
+            return Object.create (this).init (parameters);
         };
 
         return _;
@@ -143,21 +137,10 @@ let Database = function () {
 
         let makeControls = function (index, field, value, fieldKeys) {
             let innerHTML =
-                div ("filterElementDiv", makeSelect ("filterElementSelectKey" + index, fieldKeys, field, "FILTER FIELD"))
-                + div ("filterElementDiv", block ("input", {
-                    "class": "filterElementTextbox",
-                    "type": "text",
-                    "id": "filterElementTextbox" + index,
-                    "onkeypress": "if (event.keyCode == 13) { theFilter.onEnterKey (this) };",
-                    "oninput": "theFilter.onValueChange (this);",
-                    //"disabled": "disabled",
-                    "value": value
-                }, ""))
-                + div ("filterElementDiv", makeSelect ("filterElementSelectValue" + index, [], value, "FILTER VALUE"))
-                + block ("div", {
-                    "id": "filterElementCountDiv" + index,
-                    "class": "filterElementCountDiv"
-                }, "");
+                div ("bedrockElementDiv", makeSelect ("filterElementSelectField" + index, fieldKeys, field, "FILTER FIELD")) +
+                div ("bedrockElementDiv", block ("input", { class: "bedrockElementTextbox", type: "text", id: "filterElementTextbox" + index, onkeypress: "if (event.keyCode == 13) { theFilter.onEnterKey (this) };", oninput: "theFilter.onValueChange (this);", value: value }, "")) +
+                div ("bedrockElementDiv", makeSelect ("filterElementSelectValue" + index, [], value, "FILTER VALUE")) +
+                block ("div", { class: "bedrockElementTextDiv", id: "filterElementCountDiv" + index }, "");
 
             return innerHTML;
         };
@@ -193,7 +176,7 @@ let Database = function () {
 
         _.onValueChange = function (updatedControl) {
             switch (updatedControl.id.replace (/\d+$/, "")) {
-                case "filterElementSelectKey": {
+                case "filterElementSelectField": {
                     // key - clear textbox and selectvalue
                     this.setFilterField (updatedControl.value);
                     break;
@@ -234,7 +217,7 @@ let Database = function () {
 
         _.setFieldValue = function (filterField, filterValue) {
             this.filterField = filterField;
-            document.getElementById ("filterElementSelectKey" + this.index).value = filterField;
+            document.getElementById ("filterElementSelectField" + this.index).value = filterField;
             this.filterValue = filterValue;
             document.getElementById ("filterElementTextbox" + this.index).value = "";
         };
@@ -248,10 +231,9 @@ let Database = function () {
 
         let makeControls = function (index, field, type, asc, fieldKeys) {
             let innerHTML =
-                div ("filterElementDiv", makeSelect ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
-            div ("filterElementDiv", makeSelect ("sortElementSelectKey" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
-            div ("filterElementDiv", makeSelect ("sortElementAscKey" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
-
+                div ("bedrockElementDiv", makeSelect ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
+                div ("bedrockElementDiv", makeSelect ("sortElementSelectType" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
+                div ("bedrockElementDiv", makeSelect ("sortElementSelectAsc" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
             return innerHTML;
         };
 
@@ -263,7 +245,7 @@ let Database = function () {
             this.sortAsc = parameters.sortAsc;
 
             // create the select and editing elements inside the supplied div id
-            document.getElementById ("filterElementContainer" + parameters.index).innerHTML = makeControls (parameters.index, this.filterField, this.filterValue, parameters.fieldKeys);
+            document.getElementById ("sortElementContainer" + parameters.index).innerHTML = makeControls (parameters.index, this.sortField, this.sortType, this.sortAsc, parameters.fieldKeys);
 
             return this;
         };
@@ -277,10 +259,7 @@ let Database = function () {
         let _ = Object.create ($.Base);
 
         let conditionValues = function (values, elementCount) {
-            if (typeof values === "undefined") {
-                values = [];
-            }
-
+            values = (typeof values !== "undefined") ? values : [];
             for (let i = values.length; i < elementCount; ++i) {
                 values.push ({});
             }
@@ -294,8 +273,8 @@ let Database = function () {
         _.init = function (parameters) {
             this.databaseSource = Database.Source.new (parameters.database);
             this.elementCount = parameters.elementCount;
-            this.onUpdate = parameters.onUpdate;
-            this.fieldKeys = Object.keys (Database.getAllFields (parameters.database)).sort ();
+            this.owner = parameters.owner;
+            this.fieldKeys = parameters.fieldKeys;
             this.initialValues = conditionValues (parameters.initialValues, parameters.elementCount);
             return this.reset ();
         };
@@ -348,46 +327,124 @@ let Database = function () {
         _.setValues = function (values) {
             let elementCount = this.elementCount;
             let filters = this.filters;
-            values = conditionValues(values, elementCount);
+            values = conditionValues (values, elementCount);
             for (let i = 0; i < elementCount; ++i) {
-                filters[i].setFieldValue(values[i].field, values[i].value);
+                filters[i].setFieldValue (values[i].field, values[i].value);
             }
-            return this.update();
+            return this.update ();
         };
 
         _.reset = function () {
             // create the select and editing elements
-            let filterArrayContainerHTML = "";
+            let filterContainerHTML = "";
             for (let index = 0; index < this.elementCount; ++index) {
-                filterArrayContainerHTML += block ("div", {
-                    "class": "filterElementContainer",
-                    "id": "filterElementContainer" + index
-                }, "");
+                filterContainerHTML += block ("div", { class: "bedrockElementContainer", id: "filterElementContainer" + index }, "");
             }
 
             // drop in the clear button
-            filterArrayContainerHTML += div ("filterElementContainer",
-                div ("filterElementDiv",
-                block ("button", {
-                "class": "filterClearButton",
-                "type": "button",
-                "onclick": "theFilter.reset ();"
-            }, "CLEAR")));
+            filterContainerHTML +=
+                div ("bedrockElementContainer",
+                    div ("bedrockElementDiv",
+                        block ("button", { class: "bedrockClearButton", type: "button", onclick: "theFilter.reset ();" }, "CLEAR")
+                    )
+                );
 
-            document.getElementById ("filterContainer").innerHTML = filterArrayContainerHTML;
+            document.getElementById ("filterContainer").innerHTML = filterContainerHTML;
 
             this.filters = [];
             for (let index = 0; index < this.elementCount; ++index) {
                 this.filters.push (Database.FilterElement.new ({
-                    "index": index,
-                    "fieldKeys": this.fieldKeys,
-                    "initialValue": this.initialValues[index],
-                    "databaseSource": (index > 0) ? this.filters[index - 1] : this.databaseSource,
-                    "owner": this
+                    index: index,
+                    fieldKeys: this.fieldKeys,
+                    initialValue: this.initialValues[index],
+                    databaseSource: (index > 0) ? this.filters[index - 1] : this.databaseSource,
+                    owner: this
                 }));
             }
 
             return this.update ();
+        };
+
+        return _;
+    } ();
+
+    //------------------------------------------------------------------------------------
+    $.Sort = function () {
+        let _ = Object.create ($.Base);
+
+        _.init = function (parameters) {
+            this.elementCount = parameters.elementCount;
+            this.owner = parameters.owner;
+            this.fieldKeys = Object.keys (Database.getAllFields (parameters.database)).sort ();
+
+            // create the select and editing elements
+            let sortContainerHTML = "";
+            for (let index = 0; index < this.elementCount; ++index) {
+                sortContainerHTML += block ("div", { class: "bedrockElementContainer", id: "sortElementContainer" + index }, "");
+            }
+
+            // drop in the clear button
+            sortContainerHTML +=
+                div ("bedrockElementContainer",
+                    div ("bedrockElementDiv",
+                        block ("button", { class: "bedrockClearButton", type: "button", onclick: "theSort.reset ();" }, "CLEAR")
+                    )
+                );
+
+            document.getElementById ("sortContainer").innerHTML = sortContainerHTML;
+
+            this.sorts = [];
+            for (let index = 0; index < this.elementCount; ++index) {
+                this.sorts.push (Database.SortElement.new ({
+                    index: index,
+                    fieldKeys: this.fieldKeys,
+                    owner: this,
+                    sortField: "",
+                    sortType: "",
+                    sortAsc: ""
+                }));
+            }
+
+            return this;
+        };
+
+        return _;
+    } ();
+
+    $.Bedrock = function () {
+        let _ = Object.create ($.Base);
+
+        _.init = function (parameters) {
+            this.databaseSource = Database.Source.new (parameters.database);
+            this.fieldKeys = Object.keys (Database.getAllFields (parameters.database)).sort ();
+            this.onUpdate = parameters.onUpdate;
+
+            let innerHTML =
+                block ("div", { class: "bedrockGroupContainer", id: "filterContainer" }, "") +
+                block ("div", { class: "bedrockGroupContainer", id: "sortContainer" }, "");
+
+            document.getElementById ("bedrockContainer").innerHTML = innerHTML;
+
+            this.filter = Database.Filter.new ({
+                databaseSource: this.databaseSource,
+                fieldKeys: this.fieldKeys,
+                owner: this,
+                elementCount: (typeof parameters.filterElementCount !== "undefined") ? parameters.filterElementCount : 2,
+                initialValues: parameters.filterValues,
+
+            });
+
+            this.sort = Database.Sort.new ({
+                databaseSource: this.databaseSource,
+                fieldKeys: this.fieldKeys,
+                owner: this,
+                elementCount: (typeof parameters.sortElementCount !== "undefined") ? parameters.sortElementCount : 4,
+                initialValues: parameters.filterValues,
+            });
+
+            this.
+
+            return this;
         };
 
         return _;
@@ -401,6 +458,11 @@ let Database = function () {
 let theFilter;
 let makeFilter = function (parameters) {
     theFilter = Database.Filter.new (parameters);
+};
+
+let theSort;
+let makeSort = function (parameters) {
+    theSort = Database.Sort.new (parameters);
 };
 
 let SimpleDatabase = function () {

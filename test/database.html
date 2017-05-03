@@ -24,13 +24,15 @@
         color: black;
         text-align: left;
         width: 100%;
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto !important;
         float: none !important;
     }
 
-    .databaseDisplay {
+    div[id="databaseDisplay"] {
         margin-top: 15px;
+        max-height: 500px;
+        overflow-y: scroll;
     }
 
     .databaseLine {
@@ -47,8 +49,8 @@
 </style>
 
 <body>
-<div id="filterContainer" class="filterContainer"></div>
-<div id="databaseDisplay" class="databaseDisplay"></div>
+<div id="bedrockContainer"></div>
+<div id="databaseDisplay"></div>
 </body>
 </html>
 
@@ -62,6 +64,7 @@
     request.onload = function () {
         let database = JSON.parse (this.responseText);
         console.log ("loaded.");
+        Database.Bedrock.new ({});
         makeFilter ({
             "database": database,
             "elementCount": 5,
@@ -85,6 +88,11 @@
                 }
                 document.getElementById ("databaseDisplay").innerHTML = innerHTML;
             }
+        });
+        makeSort({
+            "database": database,
+            "elementCount": 2,
+            "onUpdate": function (db) {}
         });
     };
     request.send ();
