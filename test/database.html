@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Test</title>
-    <link type="text/css" rel="stylesheet" href="../css/database.css?1" />
+    <link type="text/css" rel="stylesheet" href="../css/database.css?1"/>
     <link rel="icon" type="image/png" href="../img/icon.png?1"/>
 </head>
 
@@ -30,7 +30,7 @@
     }
 
     .databaseDisplay {
-
+        margin-top: 15px;
     }
 
     .databaseLine {
@@ -62,25 +62,30 @@
     request.onload = function () {
         let database = JSON.parse (this.responseText);
         console.log ("loaded.");
-        makeFilter({ "database": database, "elementCount": 5, "initialValues": [{"field": "N"}], "onUpdate": function (db) {
-            let innerHTML = "";
-            let i = 0;
-            for (let record of db) {
-                let recordHTML = "";
-                let keys = Object.keys(record).sort ();
-                let first = true;
-                for (let key of keys) {
-                    if (! first) {
-                        recordHTML += ", "
-                    } else {
-                        first = false;
+        makeFilter ({
+            "database": database,
+            "elementCount": 5,
+            "initialValues": [{ "field": "N" }],
+            "onUpdate": function (db) {
+                let innerHTML = "";
+                let i = 0;
+                for (let record of db) {
+                    let recordHTML = "";
+                    let keys = Object.keys (record).sort ();
+                    let first = true;
+                    for (let key of keys) {
+                        if (!first) {
+                            recordHTML += ", "
+                        } else {
+                            first = false;
+                        }
+                        recordHTML += "" + key + ": " + record[key] + "";
                     }
-                    recordHTML += "" + key + ": " + record[key] + "";
+                    innerHTML += div ("databaseLine" + (((++i & 0x01) == 1) ? " odd" : ""), recordHTML);
                 }
-                innerHTML += div ("databaseLine" + (((++i & 0x01) == 1) ? " odd" : ""), recordHTML);
+                document.getElementById ("databaseDisplay").innerHTML = innerHTML;
             }
-            document.getElementById("databaseDisplay").innerHTML = innerHTML;
-        }});
+        });
     };
     request.send ();
 </script>

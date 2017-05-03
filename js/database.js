@@ -1,6 +1,30 @@
 let Database = function () {
     let $ = Object.create (null);
 
+    let makeSelect = function (id, keys, value, ghost) {
+        let optionsHTML = "";
+        if (keys.length > 1) {
+            optionsHTML = block ("option", { "value": "" }, "(" + ghost + ")");
+        }
+        for (let key of keys) {
+            //let encodedName = encodeURIComponent (key).toLowerCase ();
+            //let selectedAttr = (encodedName == value) ? " selected" : "";
+            let attributes = { "value": key };
+            if (key === value) {
+                attributes.selected = "selected";
+            }
+            optionsHTML += block ("option", attributes, key);
+        }
+
+        let innerHTML = block ("select", {
+            "class": "filterElementListContainer",
+            "id": id,
+            //"disabled":"disabled",
+            "onchange": "theFilter.onValueChange (this);"
+        }, optionsHTML);
+        return innerHTML;
+    };
+
     //------------------------------------------------------------------------------------
     // getAllFields - traverses an array of objects to produce an object that contains all
     // the field names, and all the associated values of each field
@@ -35,9 +59,22 @@ let Database = function () {
     };
 
     //------------------------------------------------------------------------------------
+    // a Base class
+    $.Base = function () {
+        let _ = Object.create (null);
+
+        _.new = function (parameters) {
+            let newObject = Object.create (this);
+            return newObject.init (parameters);
+        };
+
+        return _;
+    } ();
+
+    //------------------------------------------------------------------------------------
     // Source is an interface declaration for something that returns a database
     $.Source = function () {
-        let _ = Object.create (null);
+        let _ = Object.create ($.Base);
 
         _.init = function (database) {
             this.database = database;
@@ -48,11 +85,6 @@ let Database = function () {
             return this.database;
         };
 
-        _.new = function (database) {
-            let newObject = Object.create (_);
-            return newObject.init (database);
-        };
-
         return _;
     } ();
 
@@ -60,7 +92,7 @@ let Database = function () {
     // database filter element is a single part of a deep tree query, they are grouped
     // together to build complex AND-based reduction operations
     $.FilterElement = function () {
-        let _ = Object.create (null);
+        let _ = Object.create ($.Base);
 
         let doFilter = function (database, filterField, filterValue) {
             let result = [];
@@ -109,34 +141,9 @@ let Database = function () {
             return result;
         };
 
-        let makeSelect = function (id, keys, value) {
-            let optionsHTML = "";
-            if (keys.length > 1) {
-                let ghost = "PICK ONE";
-                optionsHTML = block ("option", { "value": "" }, ghost);
-            }
-            for (let key of keys) {
-                //let encodedName = encodeURIComponent (key).toLowerCase ();
-                //let selectedAttr = (encodedName == value) ? " selected" : "";
-                let attributes = { "value": key };
-                if (key === value) {
-                    attributes.selected = "selected";
-                }
-                optionsHTML += block ("option", attributes, key);
-            }
-
-            let innerHTML = block ("select", {
-                "class": "filterElementListContainer",
-                "id": id,
-                //"disabled":"disabled",
-                "onchange": "theFilter.onValueChange (this);"
-            }, optionsHTML);
-            return innerHTML;
-        };
-
         let makeControls = function (index, field, value, fieldKeys) {
             let innerHTML =
-                div ("filterElementDiv", makeSelect ("filterElementSelectKey" + index, fieldKeys, field))
+                div ("filterElementDiv", makeSelect ("filterElementSelectKey" + index, fieldKeys, field, "FILTER FIELD"))
                 + div ("filterElementDiv", block ("input", {
                     "class": "filterElementTextbox",
                     "type": "text",
@@ -146,7 +153,7 @@ let Database = function () {
                     //"disabled": "disabled",
                     "value": value
                 }, ""))
-                + div ("filterElementDiv", makeSelect ("filterElementSelectValue" + index, [], value))
+                + div ("filterElementDiv", makeSelect ("filterElementSelectValue" + index, [], value, "FILTER VALUE"))
                 + block ("div", {
                     "id": "filterElementCountDiv" + index,
                     "class": "filterElementCountDiv"
@@ -177,7 +184,7 @@ let Database = function () {
             // rebuild the value select
             let allFields = Database.getAllFields (this.databaseSource.getDatabase ());
             let selectParentDiv = document.getElementById ("filterElementSelectValue" + index).parentElement;
-            selectParentDiv.innerHTML = makeSelect ("filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
+            selectParentDiv.innerHTML = makeSelect ("filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
             this.filteredDatabase = doFilter (database, filterField, filterValue);
             document.getElementById ("filterElementCountDiv" + index).innerHTML = this.filteredDatabase.length + "/" + database.length;
@@ -232,16 +239,42 @@ let Database = function () {
             document.getElementById ("filterElementTextbox" + this.index).value = "";
         };
 
-        _.new = function (parameters) {
-            return Object.create (_).init (parameters);
+        return _;
+    } ();
+
+    //------------------------------------------------------------------------------------
+    $.SortElement = function () {
+        let _ = Object.create ($.Base);
+
+        let makeControls = function (index, field, type, asc, fieldKeys) {
+            let innerHTML =
+                div ("filterElementDiv", makeSelect ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
+            div ("filterElementDiv", makeSelect ("sortElementSelectKey" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
+            div ("filterElementDiv", makeSelect ("sortElementAscKey" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
+
+            return innerHTML;
         };
+
+        _.init = function (parameters) {
+            this.index = parameters.index;
+            this.owner = parameters.owner;
+            this.sortField = parameters.sortField;
+            this.sortType = parameters.sortType;
+            this.sortAsc = parameters.sortAsc;
+
+            // create the select and editing elements inside the supplied div id
+            document.getElementById ("filterElementContainer" + parameters.index).innerHTML = makeControls (parameters.index, this.filterField, this.filterValue, parameters.fieldKeys);
+
+            return this;
+        };
+
 
         return _;
     } ();
 
     //------------------------------------------------------------------------------------
     $.Filter = function () {
-        let _ = Object.create (null);
+        let _ = Object.create ($.Base);
 
         let conditionValues = function (values, elementCount) {
             if (typeof values === "undefined") {
@@ -333,11 +366,13 @@ let Database = function () {
             }
 
             // drop in the clear button
-            filterArrayContainerHTML += div ("filterElementContainer", block ("button", {
+            filterArrayContainerHTML += div ("filterElementContainer",
+                div ("filterElementDiv",
+                block ("button", {
                 "class": "filterClearButton",
                 "type": "button",
                 "onclick": "theFilter.reset ();"
-            }, "CLEAR"));
+            }, "CLEAR")));
 
             document.getElementById ("filterContainer").innerHTML = filterArrayContainerHTML;
 
@@ -353,10 +388,6 @@ let Database = function () {
             }
 
             return this.update ();
-        };
-
-        _.new = function (parameters) {
-            return Object.create (_).init (parameters);
         };
 
         return _;
