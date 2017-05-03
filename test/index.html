@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <link type="text/css" rel="stylesheet" href="../bedrock/database.css?v=2" />
+</head>
+
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+        -moz-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
+    body {
+        font-family: sans-serif;
+        font-size: 14px;
+        color: black;
+        text-align: left;
+        width: 100%;
+        max-width: 800px;
+        margin: 0 auto !important;
+        float: none !important;
+    }
+
+    .databaseDisplay {
+
+    }
+
+    .databaseLine {
+        padding: 4px;
+    }
+
+    .odd {
+        background-color: aliceblue;
+    }
+
+    .filterElementContainer {
+        width: 129px;
+    }
+</style>
+
+<body>
+<div id="filterContainer" class="filterContainer"></div>
+<div id="databaseDisplay" class="databaseDisplay"></div>
+</body>
+</html>
+
+<script src="../bedrock/html.js"></script>
+<script src="../bedrock/database.js"></script>
+<script>
+    let now = new Date ().getTime ();
+    let request = new XMLHttpRequest ();
+    request.overrideMimeType ("application/json");
+    request.open ("GET", "bsc5-short.json?" + now, true);
+    request.onload = function () {
+        let database = JSON.parse (this.responseText);
+        console.log ("loaded.");
+        makeFilter({ "database": database, "elementCount": 5, "initialValues": [{"field": "N"}], "onUpdate": function (db) {
+            let innerHTML = "";
+            let i = 0;
+            for (let record of db) {
+                let recordHTML = "";
+                let keys = Object.keys(record).sort ();
+                let first = true;
+                for (let key of keys) {
+                    if (! first) {
+                        recordHTML += ", "
+                    } else {
+                        first = false;
+                    }
+                    recordHTML += "" + key + ": " + record[key] + "";
+                }
+                innerHTML += div ("databaseLine" + (((++i & 0x01) == 1) ? " odd" : ""), recordHTML);
+            }
+            document.getElementById("databaseDisplay").innerHTML = innerHTML;
+        }});
+    };
+    request.send ();
+</script>
