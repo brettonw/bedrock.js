@@ -16,7 +16,7 @@ let Database = function () {
             optionsHTML += block ("option", attributes, key);
         }
 
-        let innerHTML = block ("select", { class: "bedrockElementListContainer", id: id, onchange: "theFilter.onValueChange (this);" }, optionsHTML);
+        let innerHTML = block ("select", { class: "bedrockElementListContainer", id: id, onchange: "theBedrock.filter.onValueChange (this);" }, optionsHTML);
         return innerHTML;
     };
 
@@ -138,7 +138,7 @@ let Database = function () {
         let makeControls = function (index, field, value, fieldKeys) {
             let innerHTML =
                 div ("bedrockElementDiv", makeSelect ("filterElementSelectField" + index, fieldKeys, field, "FILTER FIELD")) +
-                div ("bedrockElementDiv", block ("input", { class: "bedrockElementTextbox", type: "text", id: "filterElementTextbox" + index, onkeypress: "if (event.keyCode == 13) { theFilter.onEnterKey (this) };", oninput: "theFilter.onValueChange (this);", value: value }, "")) +
+                div ("bedrockElementDiv", block ("input", { class: "bedrockElementTextbox", type: "text", id: "filterElementTextbox" + index, onkeypress: "if (event.keyCode == 13) { theBedrock.filter.onEnterKey (this) };", oninput: "theBedrock.filter.onValueChange (this);", value: value }, "")) +
                 div ("bedrockElementDiv", makeSelect ("filterElementSelectValue" + index, [], value, "FILTER VALUE")) +
                 block ("div", { class: "bedrockElementTextDiv", id: "filterElementCountDiv" + index }, "");
 
@@ -165,7 +165,7 @@ let Database = function () {
             let index = this.index;
 
             // rebuild the value select
-            let allFields = Database.getAllFields (this.databaseSource.getDatabase ());
+            let allFields = Database.getAllFields (database);
             let selectParentDiv = document.getElementById ("filterElementSelectValue" + index).parentElement;
             selectParentDiv.innerHTML = makeSelect ("filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
@@ -271,7 +271,7 @@ let Database = function () {
         };
 
         _.init = function (parameters) {
-            this.databaseSource = Database.Source.new (parameters.database);
+            this.databaseSource = parameters.databaseSource;
             this.elementCount = parameters.elementCount;
             this.owner = parameters.owner;
             this.fieldKeys = parameters.fieldKeys;
@@ -299,8 +299,8 @@ let Database = function () {
                     }
                 }
 
-                // and finally call the outbound onUpdate
-                this.onUpdate (this.getDatabase ());
+                // and finally call the outbound push
+                this.owner.push (this.getDatabase ());
             }
             return this;
         };
@@ -345,7 +345,7 @@ let Database = function () {
             filterContainerHTML +=
                 div ("bedrockElementContainer",
                     div ("bedrockElementDiv",
-                        block ("button", { class: "bedrockClearButton", type: "button", onclick: "theFilter.reset ();" }, "CLEAR")
+                        block ("button", { class: "bedrockClearButton", type: "button", onclick: "theBedrock.filter.reset ();" }, "CLEAR")
                     )
                 );
 
@@ -375,7 +375,7 @@ let Database = function () {
         _.init = function (parameters) {
             this.elementCount = parameters.elementCount;
             this.owner = parameters.owner;
-            this.fieldKeys = Object.keys (Database.getAllFields (parameters.database)).sort ();
+            this.fieldKeys = parameters.fieldKeys;
 
             // create the select and editing elements
             let sortContainerHTML = "";
@@ -387,7 +387,7 @@ let Database = function () {
             sortContainerHTML +=
                 div ("bedrockElementContainer",
                     div ("bedrockElementDiv",
-                        block ("button", { class: "bedrockClearButton", type: "button", onclick: "theSort.reset ();" }, "CLEAR")
+                        block ("button", { class: "bedrockClearButton", type: "button", onclick: "theBedrock.sort.reset ();" }, "CLEAR")
                     )
                 );
 
@@ -429,7 +429,7 @@ let Database = function () {
                 databaseSource: this.databaseSource,
                 fieldKeys: this.fieldKeys,
                 owner: this,
-                elementCount: (typeof parameters.filterElementCount !== "undefined") ? parameters.filterElementCount : 2,
+                elementCount: (typeof parameters.filterElementCount !== "undefined") ? parameters.filterElementCount : 4,
                 initialValues: parameters.filterValues,
 
             });
@@ -438,13 +438,18 @@ let Database = function () {
                 databaseSource: this.databaseSource,
                 fieldKeys: this.fieldKeys,
                 owner: this,
-                elementCount: (typeof parameters.sortElementCount !== "undefined") ? parameters.sortElementCount : 4,
-                initialValues: parameters.filterValues,
+                elementCount: (typeof parameters.sortElementCount !== "undefined") ? parameters.sortElementCount : 2,
+                initialValues: parameters.sortValues,
             });
 
-            this.
-
             return this;
+        };
+
+        _.push = function (db) {
+            // do the sort
+
+            // pass the result on to the update handler
+            this.onUpdate (db);
         };
 
         return _;
@@ -453,16 +458,9 @@ let Database = function () {
     return $;
 } ();
 
-// I'd like a better way to do this than exposing a global variable - is it possible to
-// make the whole thing re-entrant?
-let theFilter;
-let makeFilter = function (parameters) {
-    theFilter = Database.Filter.new (parameters);
-};
-
-let theSort;
-let makeSort = function (parameters) {
-    theSort = Database.Sort.new (parameters);
+let theBedrock;
+let makeBedrock = function (parameters) {
+    theBedrock = Database.Bedrock.new (parameters);
 };
 
 let SimpleDatabase = function () {
