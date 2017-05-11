@@ -47,8 +47,8 @@
         background-color: aliceblue;
     }
 
-    .filterElementContainer {
-        width: 129px;
+    .bedrockElementContainer {
+        width: 125px;
     }
 </style>
 
@@ -69,9 +69,9 @@
         let database = JSON.parse (this.responseText);
         console.log ("loaded.");
         makeBedrock ({
-            "database": database,
-            "filterValues": [{ "field": "N" }],
-            "onUpdate": function (db) {
+            database: database,
+            filterValues: [{ "field": "N" }],
+            onUpdate: function (db) {
                 let innerHTML = "";
                 let i = 0;
                 for (let record of db) {
