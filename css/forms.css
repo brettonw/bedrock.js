@@ -1,0 +1,74 @@
+.form-container {
+    vertical-align: top;
+    border-radius: 4px;
+    border-width: 1px;
+    border-color: #ddd;
+    border-style: solid;
+    background: #fafafa;
+    margin-left: 15px;
+    margin-bottom: 6px;
+    padding: 8px 12px 10px 12px;
+}
+
+.form-div {
+    margin: 4px 0px;
+    height: 25px;
+    width: 475px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.form-button-wrapper {
+    width: 395px;
+    border-style: solid;
+    border-radius: 2px;
+    border-color: #777;
+    border-width: 1px;
+    margin-top: 10px;
+}
+
+.form-title-div {
+    display: inline-block;
+    height: 100%;
+    width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.form-error {
+    visibility: hidden;
+    display: inline-block;
+    width: 80px;
+    margin-left: 5px;
+    height: 100%;
+    color: red;
+    display: flex;
+    align-items: center;
+}
+
+.form-input {
+    height: 100%;
+    width: 250px;
+    padding: 4px;
+}
+
+select.form-input {
+    border-width: 1px;
+    border-color: #ddd;
+    border-radius: 2px;
+    border-style: solid;
+    -webkit-appearance: none;
+}
+
+input[type=text].form-input {
+    border-width: 1px;
+    border-color: #ddd;
+    border-radius: 2px;
+    border-style: solid;
+    -webkit-appearance: none;
+}
+
+input[type=checkbox].form-input {
+}

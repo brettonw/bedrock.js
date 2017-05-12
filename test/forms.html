@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+    <link type="text/css" rel="stylesheet" href="../css/bedrock.css?1"/>
+    <link type="text/css" rel="stylesheet" href="../css/forms.css?1"/>
+    <link rel="icon" type="image/png" href="../img/icon.png?1"/>
+</head>
+
+<body>
+<div id="bedrock-form-container"></div>
+</body>
+</html>
+
+<script src="../js/bedrock.js"></script>
+<script src="../js/forms.js"></script>
+<script>
+    let myForm = Forms.new ({
+        name: "test",
+        div: "bedrock-form-container",
+        inputs:[
+            { name: "a", type: "text", label: "A", required: true, placeholder: "just an A" },
+            { name: "b", type: "checkbox", label: "B", required: true, placeholder: "just a B" }
+        ]
+    });
+</script>
