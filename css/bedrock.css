@@ -19,6 +19,19 @@ body {
     float: none !important;
 }
 
+.page-container-div {
+    border-radius: 6px;
+    border-width: 1px;
+    border-color: #ddd;
+    border-style: solid;
+    background: #fdfdfd;
+    padding: 5px 20px 12px;
+}
+
+.section-content-div {
+    margin: 0px 0px 5px 15px;
+}
+
 div[id="bedrockContainer"] {
     display: inline-block;
     font-family: sans-serif;
@@ -32,6 +45,20 @@ div[id="bedrockContainer"] {
     background-color: aliceblue;
 }
 
+h1 {
+    margin: 20px 0px;
+}
+
+h2 {
+    margin: 10px 0px;
+}
+
+ul {
+    margin-left: 15px;
+    padding-left: 0;
+}
+
 li {
     margin-bottom: 5px;
 }
+
