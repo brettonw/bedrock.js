@@ -107,9 +107,6 @@ let Forms = function () {
                         valid = (input.inputElement.value.length > 0);
                         break;
                     }
-                    case "text-select": {
-                        break;
-                    }
                 }
                 input.errorElement.style.visibility = valid ? "hidden" : "visible";
                 allValid = allValid && valid;
@@ -127,16 +124,12 @@ let Forms = function () {
         for (let inputName of inputNames) {
             let input = this.inputs[inputName];
             switch (input.type) {
-                case "text":
-                    input.inputElement.value = input.value;
-                    break;
                 case "checkbox":
                     input.inputElement.checked = input.checked;
                     break;
+                case "text":
                 case "select":
                     input.inputElement.value = input.value;
-                    break;
-                case "text-select":
                     break;
             }
         }
@@ -155,7 +148,6 @@ let Forms = function () {
                     break;
                 case "text":
                 case "select":
-                default:
                     result += input.inputElement.value;
                     break;
             }
