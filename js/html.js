@@ -20,3 +20,28 @@ let div = function (cssClass, content) {
     return block ("div", { "class": cssClass }, content);
 };
 
+let addElement = function (parent, tag, options) {
+    let element = document.createElement (tag);
+    let optionNames = Object.keys (options);
+    for (let optionName of optionNames) {
+        switch (optionName) {
+            case "class": {
+                element.classList.add (options.class);
+                break;
+            }
+            case "classes": {
+                for (let cssClass of options.classes) {
+                    element.classList.add (cssClass);
+                }
+                break;
+            }
+            default: {
+                element[optionName] = options[optionName];
+                break;
+            }
+        }
+    }
+    parent.appendChild (element);
+    return element;
+};
+

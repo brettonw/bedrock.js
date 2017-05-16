@@ -6,31 +6,6 @@ let Forms = function () {
     const INPUT = "-input-";
     const ERROR = "-error-";
 
-    let addElement = function (parent, tag, options) {
-        let element = document.createElement(tag);
-        let optionNames = Object.keys(options);
-        for (let optionName of optionNames) {
-            switch (optionName) {
-                case "class":{
-                    element.classList.add (options.class);
-                    break;
-                }
-                case "classes": {
-                    for (let cssClass of options.classes) {
-                        element.classList.add (cssClass);
-                    }
-                    break;
-                }
-                default: {
-                    element[optionName] = options[optionName];
-                    break;
-                }
-            }
-        }
-        parent.appendChild(element);
-        return element;
-    };
-
     _.init = function (parameters) {
         // parameters.name - name of the form (and the event to use when submitting)
         let formName = this.name = parameters.name;
