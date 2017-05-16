@@ -9,19 +9,38 @@
 </head>
 
 <body>
-<div id="bedrock-form-container"></div>
+<h2>Form A</h2>
+<div id="bedrock-form-container-A"></div>
+<h2>Form B</h2>
+<div id="bedrock-form-container-B"></div>
 </body>
 </html>
 
 <script src="../js/bedrock.js"></script>
 <script src="../js/forms.js"></script>
 <script>
-    let myForm = Forms.new ({
-        name: "test",
-        div: "bedrock-form-container",
-        inputs:[
-            { name: "a", type: "text", label: "A", required: true, placeholder: "just an A" },
-            { name: "b", type: "checkbox", label: "B", required: true, placeholder: "just a B" }
-        ]
+    let myFormA = Forms.new ({
+        div: "bedrock-form-container-A",
+        inputs: [
+            { name: "a", type: "text", label: "A", required: true, placeholder: "YYYY-MM-DD", pattern: /\d\d\d\d-\d\d-\d\d/, value: "MMMM-YY-DD" },
+            { name: "b", type: "checkbox", label: "B", required: true },
+            { name: "c", type: "checkbox", label: "C", checked: true }
+        ],
+        completion: function (inputs) {
+            console.log ("Submit A");
+        }
+    });
+    let myFormB = Forms.new ({
+        name: "testB",
+        div: "bedrock-form-container-B",
+        inputs: [
+            { name: "a", type: "text", label: "A", required: true, placeholder: "YYYY", pattern: /\d+/ },
+            { name: "b", type: "checkbox", label: "B", required: true },
+            { name: "c", type: "checkbox", label: "C", checked: true },
+            { name: "d", type: "select", label: "Select One:", value: "y", options: [ "X", "y", "z" ]}
+        ],
+        completion: function (inputs) {
+            console.log ("Submit B");
+        }
     });
 </script>

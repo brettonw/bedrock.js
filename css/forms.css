@@ -51,10 +51,14 @@
 .form-input {
     height: 100%;
     width: 250px;
-    padding: 4px;
+    padding: 4px 5px;
 }
 
 select.form-input {
+    background: url("../img/down-arrow.png") no-repeat right center rgba(255, 255, 255, 0.66);
+    background-size: 17px;
+    height: 25px;
+    line-height: 15px;
     border-width: 1px;
     border-color: #ddd;
     border-radius: 2px;
