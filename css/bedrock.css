@@ -27,3 +27,11 @@ div[id="bedrockContainer"] {
     padding: 4px 0px;
     width: 100%;
 }
+
+.odd {
+    background-color: aliceblue;
+}
+
+li {
+    margin-bottom: 5px;
+}
