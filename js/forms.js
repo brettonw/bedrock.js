@@ -118,24 +118,26 @@ let Forms = function () {
 
         // call completion if everything passes
         if (allValid === true) {
-            this.completion ();
+            this.completion (this);
+        }
+    };
 
-            // and reset
-            for (let inputName of inputNames) {
-                let input = this.inputs[inputName];
-                switch (input.type) {
-                    case "text":
-                        input.inputElement.value = input.value;
-                        break;
-                    case "checkbox":
-                        input.inputElement.checked = input.checked;
-                        break;
-                    case "select":
-                        input.inputElement.value = input.value;
-                        break;
-                    case "text-select":
-                        break;
-                }
+    _.reset = function () {
+        let inputNames = Object.keys (this.inputs);
+        for (let inputName of inputNames) {
+            let input = this.inputs[inputName];
+            switch (input.type) {
+                case "text":
+                    input.inputElement.value = input.value;
+                    break;
+                case "checkbox":
+                    input.inputElement.checked = input.checked;
+                    break;
+                case "select":
+                    input.inputElement.value = input.value;
+                    break;
+                case "text-select":
+                    break;
             }
         }
     };
