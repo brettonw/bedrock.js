@@ -37,7 +37,7 @@
             { name: "a", type: "text", label: "A", required: true, placeholder: "YYYY", pattern: /\d+/ },
             { name: "b", type: "checkbox", label: "B", required: true },
             { name: "c", type: "checkbox", label: "C", checked: true },
-            { name: "d", type: "select", label: "Select One:", value: "y", options: [ "X", "y", "z" ]}
+            { name: "d", type: "select", label: "Select One:", value: "y", options: [ { option: "w", label: "W" }, "X", "y", "z" ]}
         ],
         completion: function (inputs) {
             console.log ("Submit B");

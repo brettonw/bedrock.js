@@ -48,17 +48,9 @@ let Forms = function () {
         // input = { name: "nm", type: "text|checkbox|select", label: "blah", required: true, (...values appropriate for input type...) }
         let inputs = this.inputs = {};
         for (let input of parameters.inputs) {
-            /*
-             <div class="form-div">
-             <div class="form-title-div">Device Id:</div>
-             <input blah blah blah">
-             <div id="input-device-id-error" class="form-error">REQUIRED</div>
-             </div>
-             */
-
             // create the div and set the title
             let formDivElement = addElement (divElement, "div", { class: "form-div" });
-            let formTitleDivElement = addElement (formDivElement, "div", { class: "form-title-div", innerHTML: input.label });
+            addElement (formDivElement, "div", { class: "form-title-div", innerHTML: input.label });
 
             // now add the actual input
             let inputObject = inputs[input.name] = {
@@ -70,9 +62,6 @@ let Forms = function () {
             // and the input element depending on the type
             switch (input.type) {
                 case "text": {
-                    /*
-                     <input class="form-input" id="input-device-id" type="text" placeholder="Enter your Device ID">
-                     */
                     let value = ("value" in input) ? input.value : "";
                     inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: "text", class: "form-input", placeholder: input.placeholder, value: value });
                     inputObject.value = value;
@@ -82,22 +71,12 @@ let Forms = function () {
                     break;
                 }
                 case "checkbox": {
-                    /*
-                     <input class="form-input" id="input-enable" type="checkbox" checked="checked">
-                     */
                     let checked = ("checked" in input) ? input.checked : false;
                     inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: "checkbox", class: "form-input", checked: checked });
                     inputObject.checked = checked;
                     break;
                 }
                 case "select": {
-                    /*
-                     <select class="form-input" id="input-age-rating">
-                     <option value="">UNRATED</option>
-                     ...
-                     <option value="17">MPAA NC-17</option>
-                     </select>
-                     */
                     let inputElement = inputObject.inputElement = addElement (formDivElement, "select", { id: (formName + INPUT + input.name), class: "form-input" });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
@@ -120,13 +99,8 @@ let Forms = function () {
         }
 
         // now add the submit button
-        /*
-         <div class="form-div form-button-wrapper">
-         <input class="bedrockClearButton" type="button" value="SUBMIT" onclick="onClickSubmitApplicationPolicy ();">
-         </div>
-         */
         let formDivElement = addElement (divElement, "div", { classes: ["form-div", "form-button-wrapper"] });
-        addElement (formDivElement, "input", { type: "button", value: "SUBMIT", class: "bedrockClearButton", onclick: function () { forms[formName].handleClickSubmit (); }  });
+        addElement (formDivElement, "input", { type: "button", value: "SUBMIT", class: "form-submit-button", onclick: function () { forms[formName].handleClickSubmit (); }  });
 
         return this;
     };
