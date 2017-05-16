@@ -1,5 +1,7 @@
 * {
     box-sizing: border-box;
+    padding: 0px;
+    margin: 0px;
 }
 
 html {
@@ -29,6 +31,7 @@ body {
 }
 
 .section-content-div {
+    padding: 0px;
     margin: 0px 0px 5px 15px;
 }
 
@@ -46,19 +49,22 @@ div[id="bedrockContainer"] {
 }
 
 h1 {
-    margin: 20px 0px;
+    margin: 10px 0px;
+    padding: 0px 0px;
 }
 
 h2 {
-    margin: 10px 0px;
+    margin: 8px 0px;
+    padding: 0px 0px;
 }
 
 ul {
-    margin-left: 15px;
-    padding-left: 0;
+    margin: 0px 15px;
+    padding: 0px 0px;
 }
 
 li {
     margin-bottom: 5px;
+    padding: 0px 0px;
 }
 
