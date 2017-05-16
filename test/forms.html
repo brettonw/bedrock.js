@@ -32,7 +32,12 @@
 <script src="../js/html.js"></script>
 <script src="../js/forms.js"></script>
 <script>
-    let myFormA = Forms.new ({
+    let testResponse = function (form) {
+        console.log (form.getInputValues ());
+        form.reset ();
+    };
+
+    Forms.new ({
         name: "testA",
         div: "bedrock-form-container-A",
         inputs: [
@@ -40,13 +45,10 @@
             { name: "b", type: "checkbox", label: "B", required: true },
             { name: "c", type: "checkbox", label: "C", checked: true }
         ],
-        completion: function (form) {
-            console.log ("Submit " + form.name);
-            form.reset ();
-        }
+        completion: testResponse
     });
 
-    let myFormB = Forms.new ({
+    Forms.new ({
         name: "testB",
         div: "bedrock-form-container-B",
         inputs: [
@@ -55,9 +57,6 @@
             { name: "c", type: "checkbox", label: "C", checked: true },
             { name: "d", type: "select", label: "Select One:", value: "y", options: [{ option: "w", label: "W" }, "X", "y", "z"] }
         ],
-        completion: function (form) {
-            console.log ("Submit " + form.name);
-            form.reset ();
-        }
+        completion: testResponse
     });
 </script>

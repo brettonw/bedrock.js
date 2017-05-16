@@ -142,6 +142,28 @@ let Forms = function () {
         }
     };
 
+    _.getInputValues = function () {
+        let now = new Date ().getTime ();
+        let result = "api?event=" + this.name + "&timestamp=" + now
+        let keys = Object.keys (this.inputs);
+        for (let key of keys) {
+            let input = this.inputs[key];
+            result += "&" + input.name + "=";
+            switch (input.type) {
+                case "checkbox":
+                    result += input.inputElement.checked;
+                    break;
+                case "text":
+                case "select":
+                default:
+                    result += input.inputElement.value;
+                    break;
+            }
+        }
+        return result;
+    };
+
+
     return _;
 } ();
 
