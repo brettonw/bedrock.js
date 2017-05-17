@@ -82,5 +82,12 @@ input[type=text].form-input {
     -webkit-appearance: none;
 }
 
+input[type=list].form-input {
+    border-width: 1px;
+    border-color: #ddd;
+    border-radius: 2px;
+    border-style: solid;
+}
+
 input[type=checkbox].form-input {
 }

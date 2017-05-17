@@ -3,8 +3,16 @@ let Forms = function () {
 
     let forms = {};
 
+    // strings used internally
+    const DATALIST = "datalist-";
     const INPUT = "-input-";
     const ERROR = "-error-";
+
+    // strings for input types
+    _.LIST = "list";
+    _.SELECT = "select";
+    _.TEXT = "text";
+    _.CHECKBOX = "checkbox";
 
     _.init = function (parameters) {
         // parameters.name - name of the form (and the event to use when submitting)
@@ -36,23 +44,23 @@ let Forms = function () {
 
             // and the input element depending on the type
             switch (input.type) {
-                case "text": {
+                case _.TEXT: {
                     let value = ("value" in input) ? input.value : "";
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: "text", class: "form-input", placeholder: input.placeholder, value: value });
+                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.TEXT, class: "form-input", placeholder: input.placeholder, value: value });
                     inputObject.value = value;
                     if ("pattern" in input) {
                         inputObject.pattern = input.pattern;
                     }
                     break;
                 }
-                case "checkbox": {
+                case _.CHECKBOX: {
                     let checked = ("checked" in input) ? input.checked : false;
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: "checkbox", class: "form-input", checked: checked });
+                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.CHECKBOX, class: "form-input", checked: checked });
                     inputObject.checked = checked;
                     break;
                 }
-                case "select": {
-                    let inputElement = inputObject.inputElement = addElement (formDivElement, "select", { id: (formName + INPUT + input.name), class: "form-input" });
+                case _.SELECT: {
+                    let inputElement = inputObject.inputElement = addElement (formDivElement, _.SELECT, { id: (formName + INPUT + input.name), class: "form-input" });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
                         let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
@@ -63,8 +71,21 @@ let Forms = function () {
                     inputObject.inputElement.value = value;
                     break;
                 }
-                case "text-select": {
-                    // XXX I ultimately want this to be a dropdown list with a type-able value box
+                case _.LIST: {
+                    let value = ("value" in input) ? input.value : "";
+                    let datalistId = (DATALIST + formName + INPUT + input.name);
+                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.LIST, class: "form-input", placeholder: input.placeholder });
+                    let datalist = document.createElement ("datalist");
+                    datalist.id = datalistId;
+                    for (let option of input.options) {
+                        let value = (option === Object (option)) ? option.value : option;
+                        let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
+                        addElement (datalist, "option", { value: value, label: label });
+                    }
+                    formDivElement.appendChild (datalist);
+                    inputObject.inputElement.setAttribute("list", datalistId);
+                    inputObject.value = value;
+                    inputObject.inputElement.value = value;
                     break;
                 }
             }
@@ -91,7 +112,7 @@ let Forms = function () {
             if (input.required) {
                 let valid = true;
                 switch (input.type) {
-                    case "text": {
+                    case _.TEXT: {
                         if ("pattern" in input) {
                             valid = input.inputElement.value.match (input.pattern);
                         } else  {
@@ -99,11 +120,12 @@ let Forms = function () {
                         }
                         break;
                     }
-                    case "checkbox": {
+                    case _.CHECKBOX: {
                         valid = input.inputElement.checked;
                         break;
                     }
-                    case "select": {
+                    case _.SELECT:
+                    case _.LIST: {
                         valid = (input.inputElement.value.length > 0);
                         break;
                     }
@@ -124,11 +146,12 @@ let Forms = function () {
         for (let inputName of inputNames) {
             let input = this.inputs[inputName];
             switch (input.type) {
-                case "checkbox":
+                case _.CHECKBOX:
                     input.inputElement.checked = input.checked;
                     break;
-                case "text":
-                case "select":
+                case _.TEXT:
+                case _.SELECT:
+                case _.LIST:
                     input.inputElement.value = input.value;
                     break;
             }
@@ -143,11 +166,12 @@ let Forms = function () {
             let input = this.inputs[key];
             result += "&" + input.name + "=";
             switch (input.type) {
-                case "checkbox":
+                case _.CHECKBOX:
                     result += input.inputElement.checked;
                     break;
-                case "text":
-                case "select":
+                case _.TEXT:
+                case _.SELECT:
+                case _.LIST:
                     result += input.inputElement.value;
                     break;
             }
