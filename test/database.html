@@ -58,15 +58,13 @@
 </body>
 </html>
 
+<script src="../js/bedrock.js"></script>
 <script src="../js/html.js"></script>
 <script src="../js/database.js"></script>
 <script>
     let now = new Date ().getTime ();
-    let request = new XMLHttpRequest ();
-    request.overrideMimeType ("application/json");
-    request.open ("GET", "bsc5-short.json?" + now, true);
-    request.onload = function () {
-        let database = JSON.parse (this.responseText);
+    Bedrock.get ("bsc5-short.json?" + now, function (response) {
+        let database = response;
         console.log ("loaded.");
         makeBedrock ({
             database: database,
@@ -91,6 +89,5 @@
                 document.getElementById ("databaseDisplay").innerHTML = innerHTML;
             }
         });
-    };
-    request.send ();
+    });
 </script>
