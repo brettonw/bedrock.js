@@ -64,7 +64,7 @@ let Forms = function () {
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
                         let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
-                        addElement (inputElement, "option", { value: value, label: label });
+                        addElement (inputElement, "option", { value: value, innerHTML: label });
                     }
                     let value = ("value" in input) ? input.value : inputObject.inputElement.value;
                     inputObject.value = value;
