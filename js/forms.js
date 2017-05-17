@@ -115,7 +115,7 @@ let Forms = function () {
                 switch (input.type) {
                     case _.TEXT: {
                         if ("pattern" in input) {
-                            valid = input.inputElement.value.match (input.pattern);
+                            valid = (input.inputElement.value.match (input.pattern) !== null);
                         } else  {
                             valid = (input.inputElement.value.length > 0);
                         }
