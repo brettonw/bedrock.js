@@ -16,7 +16,7 @@ let Bedrock = function () {
 
     $.getFromServiceBase = function (queryString, onSuccess) {
         this.fetch (queryString, function (response) {
-            console.log (form.name + " (status: " + response.status + ")");
+            console.log (queryString + " (status: " + response.status + ")");
             if (response.status === "ok") {
                 onSuccess (response.response);
             }
