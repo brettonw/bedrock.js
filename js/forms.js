@@ -80,7 +80,7 @@ let Forms = function () {
                         for (let option of input.options) {
                             let value = (option === Object (option)) ? option.value : option;
                             let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
-                            addElement (datalist, "option", { value: value, label: label });
+                            addElement (datalist, "option", { value: value, innerHTML: label });
                         }
                         formDivElement.appendChild (datalist);
                         inputObject.inputElement.setAttribute ("list", datalist.id);
