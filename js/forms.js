@@ -73,17 +73,18 @@ let Forms = function () {
                 }
                 case _.LIST: {
                     let value = ("value" in input) ? input.value : "";
-                    let datalistId = (DATALIST + formName + INPUT + input.name);
                     inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.LIST, class: "form-input", placeholder: input.placeholder });
-                    let datalist = document.createElement ("datalist");
-                    datalist.id = datalistId;
-                    for (let option of input.options) {
-                        let value = (option === Object (option)) ? option.value : option;
-                        let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
-                        addElement (datalist, "option", { value: value, label: label });
+                    if (typeof input.options !== "undefined") {
+                        let datalist = document.createElement ("datalist");
+                        datalist.id = (DATALIST + formName + INPUT + input.name);
+                        for (let option of input.options) {
+                            let value = (option === Object (option)) ? option.value : option;
+                            let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
+                            addElement (datalist, "option", { value: value, label: label });
+                        }
+                        formDivElement.appendChild (datalist);
+                        inputObject.inputElement.setAttribute ("list", datalist.id);
                     }
-                    formDivElement.appendChild (datalist);
-                    inputObject.inputElement.setAttribute("list", datalistId);
                     inputObject.value = value;
                     inputObject.inputElement.value = value;
                     break;
