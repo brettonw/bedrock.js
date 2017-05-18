@@ -161,7 +161,7 @@ let Forms = function () {
 
     _.getInputValues = function () {
         let now = new Date ().getTime ();
-        let result = "api?event=" + this.name + "&timestamp=" + now
+        let result = "api?event=" + this.name + "&timestamp=" + now;
         let keys = Object.keys (this.inputs);
         for (let key of keys) {
             let input = this.inputs[key];
