@@ -1,7 +1,7 @@
 let Database = function () {
     let $ = Object.create (null);
 
-    let makeSelect = function (id, keys, value, ghost) {
+    let makeSelectElement = function (id, keys, value, ghost) {
         let optionsHTML = "";
         if (keys.length > 1) {
             optionsHTML = block ("option", { value: "" }, "(" + ghost + ")");
@@ -16,8 +16,41 @@ let Database = function () {
             optionsHTML += block ("option", attributes, key);
         }
 
-        let innerHTML = block ("select", { class: "bedrockElementListContainer", id: id, onchange: "theBedrock.filter.onValueChange (this);" }, optionsHTML);
+        let innerHTML = block ("select", { class: "bedrockElementSelectContainer", id: id, onchange: "theBedrock.filter.onValueChange (this);" }, optionsHTML);
         return innerHTML;
+    };
+
+    let makeListElement = function (id, keys, value, placeholder) {
+        let existingDataList = document.getElementById (id + "-list");
+        if (existingDataList != null) {
+            existingDataList.parentNode.removeChild (existingDataList);
+        }
+
+        let datalistHTML = "";
+        for (let key of keys) {
+            //let encodedName = encodeURIComponent (key).toLowerCase ();
+            //let selectedAttr = (encodedName == value) ? " selected" : "";
+            datalistHTML += block ("option", { value: key }, key);
+        }
+
+        let innerHTML = block ("datalist", { id: id + "-list", }, datalistHTML);
+
+        innerHTML = '<input id="' + id + '" type="text" list="' + id + '-list" value="' + value + '" placeholder="' + placeholder + '" class="bedrockElementListContainer" oninput="theBedrock.filter.onValueChange (this);" onclick="this.value = \'\';">' + innerHTML;
+        return innerHTML;
+    };
+
+    let updateListElement = function (id, keys, value) {
+        document.getElementById (id).value = value;
+        let existingDataList = document.getElementById (id + "-list");
+
+            let datalistHTML = "";
+            for (let key of keys) {
+                //let encodedName = encodeURIComponent (key).toLowerCase ();
+                //let selectedAttr = (encodedName == value) ? " selected" : "";
+                datalistHTML += block ("option", { value: key }, key);
+            }
+
+            existingDataList.innerHTML = datalistHTML;
     };
 
     //------------------------------------------------------------------------------------
@@ -137,10 +170,9 @@ let Database = function () {
 
         let makeControls = function (index, field, value, fieldKeys) {
             let innerHTML =
-                div ("bedrockElementDiv", makeSelect ("filterElementSelectField" + index, fieldKeys, field, "FILTER FIELD")) +
-                div ("bedrockElementDiv", block ("input", { class: "bedrockElementTextbox", type: "text", id: "filterElementTextbox" + index, onkeypress: "if (event.keyCode == 13) { theBedrock.filter.onEnterKey (this) };", oninput: "theBedrock.filter.onValueChange (this);", value: value }, "")) +
-                div ("bedrockElementDiv", makeSelect ("filterElementSelectValue" + index, [], value, "FILTER VALUE")) +
-                block ("div", { class: "bedrockElementTextDiv", id: "filterElementCountDiv" + index }, "");
+                block ("div", { class: "bedrockElementTextDiv", id: "filterElementCountDiv" + index }, "") +
+                div ("bedrockElementDiv", makeSelectElement ("filterElementSelectField" + index, fieldKeys, field, "FILTER FIELD")) +
+                div ("bedrockElementDiv", makeListElement ("filterElementSelectValue" + index, [], value, "FILTER VALUE"));
 
             return innerHTML;
         };
@@ -164,53 +196,45 @@ let Database = function () {
             let filterValue = this.filterValue;
             let index = this.index;
 
-            // rebuild the value select
-            let allFields = Database.getAllFields (database);
-            let selectParentDiv = document.getElementById ("filterElementSelectValue" + index).parentElement;
-            selectParentDiv.innerHTML = makeSelect ("filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
-
             this.filteredDatabase = doFilter (database, filterField, filterValue);
             document.getElementById ("filterElementCountDiv" + index).innerHTML = this.filteredDatabase.length + "/" + database.length;
-            this.owner.push (this.index);
+            this.owner.push (index);
         };
 
         _.onValueChange = function (updatedControl) {
             switch (updatedControl.id.replace (/\d+$/, "")) {
                 case "filterElementSelectField": {
-                    // key - clear textbox and selectvalue
                     this.setFilterField (updatedControl.value);
                     break;
                 }
-                case "filterElementTextbox": {
-                    // textbox - update selectvalue
-                    document.getElementById ("filterElementSelectValue" + this.index).value = updatedControl.value;
-                    this.setFilterValue (updatedControl.value);
-                    break;
-                }
                 case "filterElementSelectValue": {
-                    document.getElementById ("filterElementTextbox" + this.index).value = updatedControl.value;
                     this.setFilterValue (updatedControl.value);
                     break;
                 }
             }
         };
 
-        _.onEnterKey = function (updatedControl) {
-
-        };
-
         _.getDatabase = function () {
             return this.filteredDatabase;
         };
 
-        _.setFilterField = function (filterField, shouldUpdate) {
+        _.setFilterField = function (filterField) {
             this.filterField = filterField;
-            this.filterValue = "";
-            document.getElementById ("filterElementTextbox" + this.index).value = "";
+            let filterValue = this.filterValue = "";
+
+            let database = this.databaseSource.getDatabase ();
+            let index = this.index;
+
+            // rebuild the value select
+            let allFields = Database.getAllFields (database);
+            updateListElement ("filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
+            //let selectParentDiv = document.getElementById ("filterElementSelectValue" + index).parentElement;
+            //selectParentDiv.innerHTML = makeListElement ("filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
+
             this.update ();
         };
 
-        _.setFilterValue = function (filterValue, shouldUpdate) {
+        _.setFilterValue = function (filterValue) {
             this.filterValue = filterValue;
             this.update ();
         };
@@ -219,7 +243,6 @@ let Database = function () {
             this.filterField = filterField;
             document.getElementById ("filterElementSelectField" + this.index).value = filterField;
             this.filterValue = filterValue;
-            document.getElementById ("filterElementTextbox" + this.index).value = "";
         };
 
         return _;
@@ -231,9 +254,9 @@ let Database = function () {
 
         let makeControls = function (index, field, type, asc, fieldKeys) {
             let innerHTML =
-                div ("bedrockElementDiv", makeSelect ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
-                div ("bedrockElementDiv", makeSelect ("sortElementSelectType" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
-                div ("bedrockElementDiv", makeSelect ("sortElementSelectAsc" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
+                div ("bedrockElementDiv", makeSelectElement ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
+                div ("bedrockElementDiv", makeSelectElement ("sortElementSelectType" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
+                div ("bedrockElementDiv", makeSelectElement ("sortElementSelectAsc" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
             return innerHTML;
         };
 
@@ -314,12 +337,6 @@ let Database = function () {
             this.filters[index].onValueChange (updatedControl);
         };
 
-        _.onEnterKey = function (updatedControl) {
-            let index = updatedControl.id.match (/\d+$/)[0];
-            this.filters[index].onEnterKey (updatedControl);
-
-        };
-
         _.getDatabase = function () {
             return this.filters[this.filters.length - 1].getDatabase ();
         };
@@ -344,6 +361,7 @@ let Database = function () {
             // drop in the clear button
             filterContainerHTML +=
                 div ("bedrockElementContainer",
+                    div ("bedrockElementTextDiv", "") +
                     div ("bedrockElementDiv",
                         block ("button", { class: "bedrockClearButton", type: "button", onclick: "theBedrock.filter.reset ();" }, "CLEAR")
                     )
@@ -386,6 +404,7 @@ let Database = function () {
             // drop in the clear button
             sortContainerHTML +=
                 div ("bedrockElementContainer",
+                    div ("bedrockElementTextDiv", "") +
                     div ("bedrockElementDiv",
                         block ("button", { class: "bedrockClearButton", type: "button", onclick: "theBedrock.sort.reset ();" }, "CLEAR")
                     )
