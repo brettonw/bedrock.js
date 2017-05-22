@@ -78,3 +78,9 @@ div[id="bedrockContainer"] {
     -webkit-appearance: none;
 }
 
+.datalist {
+    height: 50px !important;
+    max-height: 200px !important;
+    overflow-y: scroll;
+    display: block !important;
+}

@@ -21,38 +21,39 @@ let Database = function () {
     };
 
     let makeSelectElement = function (parent, id, keys, value, placeholder) {
-        let select = addElement(parent, "select", {
+        let element = addElement(parent, "select", {
             class: "bedrockElementSelectContainer",
             id: id,
             onchange: function () { theBedrock.filter.onValueChange (this); }
         });
 
         if (keys.length > 1) {
-            addElement (select, "option", { value: "" }).innerHTML = "(" + placeholder + ")";
+            addElement (element, "option", { value: "" }).innerHTML = "(" + placeholder + ")";
         }
         for (let key of keys) {
             //let encodedName = encodeURIComponent (key).toLowerCase ();
             //let selectedAttr = (encodedName == value) ? " selected" : "";
-            addElement(select, "option", { value: key }).innerHTML = key;
+            addElement(element, "option", { value: key }).innerHTML = key;
         }
-        select.value = value;
+        element.value = value;
+        return element;
     };
 
     let makeListElement = function (parent, id, keys, value, placeholder) {
-        let input = addElement (parent, "input", {
+        let element = addElement (parent, "input", {
             class:"bedrockElementListContainer",
             id: id,
             type:"text",
             placeholder: "(" + placeholder + ")",
-            oninput: function () { theBedrock.filter.onValueChange (this); },
-            onclick: function () { this.value = ""; }
+            //onclick: function () { this.value = ""; },
+            oninput: function () { theBedrock.filter.onValueChange (this); }
         }).setAttribute("list", id + "-list");
-        updateListElement(id, keys, value);
+        return updateListElement(id, keys, value);
     };
 
     let updateListElement = function (id, keys, value) {
         // get the element and its parent
-        let element = document.getElementById (id)
+        let element = document.getElementById (id);
         let parent = element.parentNode;
 
         // if there is a datalist already, blow it away
@@ -71,6 +72,7 @@ let Database = function () {
 
         // set the value
         element.value = value;
+        return element;
     };
 
     //------------------------------------------------------------------------------------
@@ -192,21 +194,24 @@ let Database = function () {
             let index = this.index = parameters.index;
             this.databaseSource = parameters.databaseSource;
             this.owner = parameters.owner;
-            let filterField = this.filterField = parameters.initialValue.field;
-            let filterValue = this.filterValue = parameters.initialValue.value;
+            let filterField = parameters.initialValue.field;
+            let filterValue = parameters.initialValue.value;
             let fieldKeys = parameters.fieldKeys;
 
-            // create the select and editing elements inside the supplied div id
-            let filterElementContainer = document.getElementById ("filterElementContainer" + index);
-            this.countDiv = addElement (filterElementContainer, "div", { class: "bedrockElementTextDiv" });
+            // create the element container
+            this.elementContainer = addElement (parameters.div, "div", { class: "bedrockElementContainer", id: "filterElementContainer" + index });
 
-            let selectContainer = addElement (filterElementContainer, "div", { class: "bedrockElementDiv" });
+            // create the select and editing elements inside the container
+            //this.elementContainer = document.getElementById ("filterElementContainer" + index);
+            this.countDiv = addElement (this.elementContainer, "div", { class: "bedrockElementTextDiv" });
+
+            let selectContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
             this.fieldElement = makeSelectElement (selectContainer, "filterElementSelectField" + index, fieldKeys, filterField, "FILTER FIELD");
-            let listContainer = addElement (filterElementContainer, "div", { class: "bedrockElementDiv" });
+            let listContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
 
             let database = this.databaseSource.getDatabase ();
             let allFields = Database.getAllFields (database);
-            this.listElement = makeListElement(listContainer, "filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
+            this.valueElement = makeListElement(listContainer, "filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
             this.filteredDatabase = doFilter (database, filterField, filterValue);
             this.countDiv.innerHTML = this.filteredDatabase.length + "/" + database.length;
@@ -216,8 +221,8 @@ let Database = function () {
 
         _.update = function () {
             let database = this.databaseSource.getDatabase ();
-            let filterField = this.filterField;
-            let filterValue = this.filterValue;
+            let filterField = this.fieldElement.value;
+            let filterValue = this.valueElement.value;
             let index = this.index;
 
             this.filteredDatabase = doFilter (database, filterField, filterValue);
@@ -226,21 +231,14 @@ let Database = function () {
         };
 
         _.onValueChange = function (updatedControl) {
-            switch (updatedControl.id.replace (/\d+$/, "")) {
-                case "filterElementSelectField": {
-                    let filterField = this.filterField = updatedControl.value;
-                    let filterValue = this.filterValue = "";
+            if (updatedControl === this.fieldElement) {
+                let filterField = updatedControl.value;
+                let filterValue = this.valueElement.value = "";
 
-                    // rebuild the value select
-                    let database = this.databaseSource.getDatabase ();
-                    let allFields = Database.getAllFields (database);
-                    updateListElement ("filterElementSelectValue" + this.index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
-                    break;
-                }
-                case "filterElementSelectValue": {
-                    this.filterValue = updatedControl.value;
-                    break;
-                }
+                // rebuild the value select
+                let database = this.databaseSource.getDatabase ();
+                let allFields = Database.getAllFields (database);
+                updateListElement ("filterElementSelectValue" + this.index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
             }
             this.update ();
         };
@@ -250,11 +248,8 @@ let Database = function () {
         };
 
         _.setFieldValue = function (filterField, filterValue) {
-            this.filterField = filterField;
-            this.filterValue = filterValue;
-
             // set the filter field value
-            document.getElementById ("filterElementSelectField" + this.index).value = filterField;
+            this.fieldElement.value = filterField;
 
             // rebuild the value select
             let database = this.databaseSource.getDatabase ();
@@ -326,16 +321,16 @@ let Database = function () {
             let index = length - 1;
 
             // this was the last one, reverse up the list looking for the last full filter
-            while ((filters[index].filterField.length == 0) && (index > 0)) {
+            while ((filters[index].fieldElement.value.length == 0) && (index > 0)) {
                 --index;
             }
-            if (filters[index].filterField.length > 0) {
+            if (filters[index].fieldElement.value.length > 0) {
                 ++index;
             }
             if (index < length) {
-                document.getElementById ("filterElementContainer" + index).style.display = "inline-block";
+                filters[index].elementContainer.style.display = "inline-block";
                 while (++index < length) {
-                    document.getElementById ("filterElementContainer" + index).style.display = "none";
+                    filters[index].elementContainer.style.display = "none";
                 }
             }
 
@@ -386,20 +381,17 @@ let Database = function () {
             }
 
             // create the element containers elements
+            /*
             for (let index = 0; index < this.elementCount; ++index) {
                 addElement(filterContainer, "div", { class: "bedrockElementContainer", id: "filterElementContainer" + index });
             }
-
-            // drop in the clear button
-            let clearButtonElementContainer = addElement (filterContainer, "div", { class: "bedrockElementContainer" });
-            addElement (clearButtonElementContainer, "div", { class: "bedrockElementTextDiv" });
-            let clearButtonElementDiv = addElement (clearButtonElementContainer, "div", { class: "bedrockElementDiv" });
-            addElement(clearButtonElementDiv, "button", { class: "bedrockClearButton", onclick: function () { theBedrock.filter.reset (); } }).innerHTML = "CLEAR";
+            */
 
             // now create the filter elements
             this.filters = [];
             for (let index = 0; index < this.elementCount; ++index) {
                 this.filters.push (Database.FilterElement.new ({
+                    div: filterContainer,
                     index: index,
                     fieldKeys: this.fieldKeys,
                     initialValue: this.initialValues[index],
@@ -407,6 +399,16 @@ let Database = function () {
                     owner: this
                 }));
             }
+
+            // drop in the clear button
+            let clearButtonElementContainer = addElement (filterContainer, "div", { class: "bedrockElementContainer" });
+            addElement (clearButtonElementContainer, "div", { class: "bedrockElementTextDiv" });
+            let clearButtonElementDiv = addElement (clearButtonElementContainer, "div", { class: "bedrockElementDiv" });
+            addElement (clearButtonElementDiv, "button", {
+                class: "bedrockClearButton", onclick: function () {
+                    theBedrock.filter.reset ();
+                }
+            }).innerHTML = "CLEAR";
 
             // and notify the receiver that we've finished setting up
             this.finish ();
