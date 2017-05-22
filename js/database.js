@@ -21,7 +21,11 @@ let Database = function () {
     };
 
     let makeSelectElement = function (parent, id, keys, value, placeholder) {
-        let select = addElement(parent, "select", { class: "bedrockElementSelectContainer", id: id, onchange: function () { theBedrock.filter.onValueChange (this); } });
+        let select = addElement(parent, "select", {
+            class: "bedrockElementSelectContainer",
+            id: id,
+            onchange: function () { theBedrock.filter.onValueChange (this); }
+        });
 
         if (keys.length > 1) {
             addElement (select, "option", { value: "" }).innerHTML = "(" + placeholder + ")";
@@ -35,7 +39,13 @@ let Database = function () {
     };
 
     let makeListElement = function (parent, id, keys, value, placeholder) {
-        let input = addElement (parent, "input", { class:"bedrockElementListContainer", id: id, type:"text", oninput:"theBedrock.filter.onValueChange (this);", onclick:"this.value = '';" }).setAttribute("list", id + "-list");
+        let input = addElement (parent, "input", {
+            class:"bedrockElementListContainer",
+            id: id,
+            type:"text",
+            oninput: function () { theBedrock.filter.onValueChange (this); },
+            onclick: function () { this.value = ""; }
+        }).setAttribute("list", id + "-list");
         updateListElement(id, keys, value);
     };
 
