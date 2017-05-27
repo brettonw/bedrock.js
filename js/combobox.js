@@ -60,19 +60,15 @@ let ComboBox = function () {
         // create a box under it the same size, absolute position
         let optionsElement = this.optionsElement = addElement(parentElement, "div", {
             id: parameters.inputElementId + "-list",
+            class: "combobox",
             style: {
-                position: "absolute",
-                display: "none",
-                width: inputElement.clientWidth + "px",
-                height: "100px",
-                overflowY: "scroll",
-                color: "#800",
-                "z-index": 100
+                width: inputElement.offsetWidth + "px",
+                color: "#800"
             }
         });
 
         for (let option of parameters.options) {
-            addElement(optionsElement, "div", {}).innerHTML = option;
+            addElement(optionsElement, "div", { class: "combobox-option" }).innerHTML = option;
         }
     };
 

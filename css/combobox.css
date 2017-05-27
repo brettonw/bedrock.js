@@ -1,0 +1,20 @@
+.combobox {
+    position: absolute;
+    top: 2px;
+    display: none;
+    overflowY: scroll;
+    z-index: 100;
+    max-height: 200px;
+    opacity: 0.9;
+    background-color: white;
+    border-color: #bbb;
+    border-style: solid;
+    border-width: 1px;
+    -webkit-appearance: none;
+    padding: 2px;
+}
+
+.combobox-option {
+    opacity: 1;
+}
+
