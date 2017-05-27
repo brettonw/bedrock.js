@@ -35,6 +35,12 @@ let addElement = function (parent, tag, options) {
                 }
                 break;
             }
+            case "style": {
+                for (let style of Object.keys (options.style)) {
+                    element.style[style] = options.style[style];
+                }
+                break;
+            }
             default: {
                 element[optionName] = options[optionName];
                 break;

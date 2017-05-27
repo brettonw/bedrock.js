@@ -127,12 +127,8 @@ let Database = function () {
             // the individual filter function
             let regex = new RegExp (filterValue, 'i')
             let matchValue = function (value) {
-                // XXX would be really interesting to see about using characters like
-                // XXX '^' and '$' to indicate beginning and end of string
                 let matchResult = value.match (regex);
                 return ((matchResult != null) === shouldMatch);
-                //let matchIndex = value.toString ().toLowerCase ().indexOf (conditionedFilterValue);
-                //return ((matchIndex >= 0) === shouldMatch);
             };
 
             // otherwise, loop over all the records to see what passes

@@ -10,11 +10,11 @@
 <body>
 <h1>Combobox</h1>
 <div class="page-container-div">
-    <h2>Form A</h2>
+    <h2>Test 1</h2>
     <div class="section-content-div">
-        A simple form, A.
+        <div><input type="text" id="testInput"></div>
+        <div>And some text around it for testing.</div>
     </div>
-    <div id="bedrock-form-container-A"></div>
 
 </div>
 </body>
@@ -24,4 +24,5 @@
 <script src="../js/html.js"></script>
 <script src="../js/combobox.js"></script>
 <script>
+    ComboBox.new ({ inputElementId: "testInput", options: ["a", "b", "c", "d", "e"] });
 </script>
