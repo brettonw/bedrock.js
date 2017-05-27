@@ -1,8 +1,14 @@
-.combobox {
+.combobox-pseudo-parent {
+    position: relative;
+    width: 0;
+    height: 0;
+}
+
+.combobox-options {
     position: absolute;
     top: 2px;
     display: none;
-    overflowY: scroll;
+    overflow-y: scroll;
     z-index: 100;
     max-height: 200px;
     opacity: 0.9;
@@ -10,11 +16,19 @@
     border-color: #bbb;
     border-style: solid;
     border-width: 1px;
-    -webkit-appearance: none;
-    padding: 2px;
+    border-radius: 3px;
 }
 
 .combobox-option {
     opacity: 1;
+    height: 25px;
+    padding: 2px;
+    font-size:14px;
+    font-family: sans-serif;
+    color: black;
 }
 
+.combobox-option:hover {
+    color: white;
+    background-color: mediumblue;
+}
