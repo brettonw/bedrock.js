@@ -1,25 +1,6 @@
 let Database = function () {
     let $ = Object.create (null);
 
-    let makeSelectHTML = function (id, keys, value, ghost) {
-        let optionsHTML = "";
-        if (keys.length > 1) {
-            optionsHTML = block ("option", { value: "" }, "(" + ghost + ")");
-        }
-        for (let key of keys) {
-            //let encodedName = encodeURIComponent (key).toLowerCase ();
-            //let selectedAttr = (encodedName == value) ? " selected" : "";
-            let attributes = { value: key };
-            if (key === value) {
-                attributes.selected = "selected";
-            }
-            optionsHTML += block ("option", attributes, key);
-        }
-
-        let innerHTML = block ("select", { class: "bedrockElementSelectContainer", id: id, onchange: "theBedrock.filter.onValueChange (this);" }, optionsHTML);
-        return innerHTML;
-    };
-
     let makeSelectElement = function (parent, id, keys, value, placeholder) {
         let element = addElement(parent, "select", {
             class: "bedrockElementSelectContainer",
@@ -109,21 +90,9 @@ let Database = function () {
     };
 
     //------------------------------------------------------------------------------------
-    // a Base class
-    $.Base = function () {
-        let _ = Object.create (null);
-
-        _.new = function (parameters) {
-            return Object.create (this).init (parameters);
-        };
-
-        return _;
-    } ();
-
-    //------------------------------------------------------------------------------------
     // Source is an interface declaration for something that returns a database
     $.Source = function () {
-        let _ = Object.create ($.Base);
+        let _ = Object.create (Bedrock.Base);
 
         _.init = function (database) {
             this.database = database;
@@ -141,10 +110,13 @@ let Database = function () {
     // database filter element is a single part of a deep tree query, they are grouped
     // together to build complex AND-based reduction operations
     $.FilterElement = function () {
-        let _ = Object.create ($.Base);
+        let _ = Object.create (Bedrock.Base);
 
-        let doFilter = function (database, filterField, filterValue) {
+        let doFilter = function (database, filterField, filterValue, shouldMatch) {
             let result = [];
+
+            // initialize the not value if it wasn't passed
+            shouldMatch = (typeof shouldMatch !== "undefined") ? shouldMatch : true;
 
             // if the search key is not specified, this is a pass-through filter, just return
             // what we started with
@@ -153,12 +125,14 @@ let Database = function () {
             }
 
             // the individual filter function
-            let conditionedFilterValue = filterValue.toLowerCase ();
+            let regex = new RegExp (filterValue, 'i')
             let matchValue = function (value) {
                 // XXX would be really interesting to see about using characters like
                 // XXX '^' and '$' to indicate beginning and end of string
-                let matchIndex = value.toString ().toLowerCase ().indexOf (conditionedFilterValue);
-                return (matchIndex >= 0);
+                let matchResult = value.match (regex);
+                return ((matchResult != null) === shouldMatch);
+                //let matchIndex = value.toString ().toLowerCase ().indexOf (conditionedFilterValue);
+                //return ((matchIndex >= 0) === shouldMatch);
             };
 
             // otherwise, loop over all the records to see what passes
@@ -213,7 +187,7 @@ let Database = function () {
             let allFields = Database.getAllFields (database);
             this.valueElement = makeListElement(listContainer, "filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
-            this.filteredDatabase = doFilter (database, filterField, filterValue);
+            this.filteredDatabase = doFilter (database, filterField, filterValue, true);
             this.countDiv.innerHTML = this.filteredDatabase.length + "/" + database.length;
 
             return this;
@@ -225,7 +199,7 @@ let Database = function () {
             let filterValue = this.valueElement.value;
             let index = this.index;
 
-            this.filteredDatabase = doFilter (database, filterField, filterValue);
+            this.filteredDatabase = doFilter (database, filterField, filterValue, true);
             this.countDiv.innerHTML = this.filteredDatabase.length + "/" + database.length;
             this.owner.push (index);
         };
@@ -262,7 +236,7 @@ let Database = function () {
 
     //------------------------------------------------------------------------------------
     $.SortElement = function () {
-        let _ = Object.create ($.Base);
+        let _ = Object.create (Bedrock.Base);
 
         let makeControls = function (index, field, type, asc, fieldKeys) {
             let innerHTML =
@@ -291,7 +265,7 @@ let Database = function () {
 
     //------------------------------------------------------------------------------------
     $.Filter = function () {
-        let _ = Object.create ($.Base);
+        let _ = Object.create (Bedrock.Base);
 
         let conditionValues = function (values, elementCount) {
             values = (typeof values !== "undefined") ? values : [];
@@ -421,7 +395,7 @@ let Database = function () {
 
     //------------------------------------------------------------------------------------
     $.Sort = function () {
-        let _ = Object.create ($.Base);
+        let _ = Object.create (Bedrock.Base);
 
         _.init = function (parameters) {
             this.elementCount = parameters.elementCount;
@@ -464,7 +438,7 @@ let Database = function () {
     } ();
 
     $.Bedrock = function () {
-        let _ = Object.create ($.Base);
+        let _ = Object.create (Bedrock.Base);
 
         _.init = function (parameters) {
             this.databaseSource = Database.Source.new (parameters.database);
