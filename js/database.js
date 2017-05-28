@@ -35,6 +35,19 @@ let Database = function () {
     };
 
     let makeListElement = function (parent, id, keys, value, placeholder) {
+        let element = addElement(parent, "input", {
+            class: "combobox-input",
+            id: id,
+            placeholder: "(" + placeholder + ")",
+            type: "text",
+            onchange: function () { theBedrock.filter.onValueChange (this); }
+        });
+        Bedrock.ComboBox.new ({
+            inputElementId: id,
+            options: keys
+        });
+        return updateListElement (id, keys, value);
+        /*
         let element = addElement (parent, "input", {
             class:"bedrockElementListContainer",
             id: id,
@@ -44,11 +57,16 @@ let Database = function () {
             oninput: function () { theBedrock.filter.onValueChange (this); }
         }).setAttribute("list", id + "-list");
         return updateListElement(id, keys, value);
+        */
     };
 
     let updateListElement = function (id, keys, value) {
+        Bedrock.ComboBox.getById (id).setOptions (keys);
+
         // get the element and its parent
         let element = document.getElementById (id);
+
+        /*
         let parent = element.parentNode;
 
         // if there is a datalist already, blow it away
@@ -64,6 +82,7 @@ let Database = function () {
             //let selectedAttr = (encodedName == value) ? " selected" : "";
             addElement (datalist, "option", { value: key }).innerHTML = key;
         }
+        */
 
         // set the value
         element.value = value;

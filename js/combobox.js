@@ -1,18 +1,29 @@
 Bedrock.ComboBox = function () {
     let _ = Object.create(Bedrock.Base);
 
+    let indexById = {};
+
+    _.getById = function (inputElementId) {
+        return indexById[inputElementId];
+    };
+
     _.init = function (parameters) {
         // scope "this" as self so I can use it in closures
         let self = this;
 
-        // if the user starts pressing keys to navigate the options list, then we don't want to
-        // automagically incure mouseover events while the list scrolls. This flag is used to tell
-        // the options not to highlight from mouseover events unless the mouse has moved first
+        // if the user starts pressing keys to navigate the options list, then we don't
+        // want to automagically incure mouseover events while the list scrolls. This flag
+        // is used to tell the options not to highlight from mouseover events unless the
+        // mouse has moved first
         this.mouseoverWaitsForMouseMove = false;
 
-        // get the text box from the parameters, and its computed style
-        let inputElement = this.inputElement = document.getElementById(parameters.inputElementId);
+        // get the text box from the parameters and its computed style, store this for
+        // later use
+        let inputElementId = parameters.inputElementId;
+        let inputElement = this.inputElement = document.getElementById(inputElementId);
         //let computedStyle = getComputedStyle (inputElement);
+        //inputElement.setAttribute("data", { bedrock: this });
+        indexById[inputElementId] = this;
 
         // get the parent element
         let parentElement = inputElement.parentNode;
@@ -33,13 +44,11 @@ Bedrock.ComboBox = function () {
 
         // subscribe to various events on the input element
 
-        // capture the mousedown, and if it's on the far right of the input element, clear the text
-        // before proceeding
+        // capture the mousedown, and if it's on the far right of the input element,
+        // clear the text before proceeding
         inputElement.onmousedown = function (event) {
             let x = (event.pageX - this.offsetLeft) / this.offsetWidth;
-            let computedStyle = getComputedStyle (this);
-            let arrowSize = parseFloat(computedStyle.backgroundSize.replace ("px", ""));
-            let arrowPlacement = (this.offsetWidth - arrowSize) / this.offsetWidth;
+            let arrowPlacement = (this.offsetWidth - parseFloat (getComputedStyle (this).backgroundSize)) / this.offsetWidth;
             if (x > arrowPlacement) {
                 inputElement.value = "";
 
@@ -49,7 +58,7 @@ Bedrock.ComboBox = function () {
                     self.callOnChange ();
                 }
             }
-            //console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
+            console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
         };
 
         // in case I need to capture some keys (up/down, for instance)
@@ -136,6 +145,8 @@ Bedrock.ComboBox = function () {
             //console.log (this.id + " - blur");
             self.optionsElement.style.display = "none";
         };
+
+        return this;
     };
 
     _.callOnChange = function () {
@@ -193,6 +204,10 @@ Bedrock.ComboBox = function () {
                 }).innerHTML = option;
             }
         }
+    };
+
+    _.setOptions = function (options) {
+        this.options = options;
     };
 
     return _;
