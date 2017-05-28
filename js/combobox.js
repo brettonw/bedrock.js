@@ -13,8 +13,6 @@ let ComboBox = function () {
         // get the text box from the parameters
         let inputElement = this.inputElement = document.getElementById(parameters.inputElementId);
 
-        // put a dropdown arrow on the right side of the input element
-
         // get the parent element
         let parentElement = inputElement.parentNode;
 
@@ -33,6 +31,22 @@ let ComboBox = function () {
         this.currentOption = null;
 
         // subscribe to various events on the input element
+
+        // capture the mousedown, and if it's on the far right of the input element, clear the text
+        // before proceeding
+        inputElement.onmousedown = function (event) {
+            let x = (event.pageX - this.offsetLeft) / this.offsetWidth;
+            if (x > 0.85) {
+                inputElement.value = "";
+
+                // if the element is already focused, we need to update the options
+                if (this === document.activeElement) {
+                    self.updateOptions ();
+                    self.callOnChange ();
+                }
+            }
+            console.log (this.id + " - mousedown (" + x + ")");
+        };
 
         // in case I need to capture some keys (up/down, for instance)
         inputElement.onkeydown = function (event) {
@@ -106,7 +120,8 @@ let ComboBox = function () {
         };
 
         // when the control gains focus
-        inputElement.onfocus = function () {
+        inputElement.onfocus = function (event) {
+            console.log (this.id + " - focus");
             self.updateOptions ();
             optionsElement.scrollTop = 0;
             optionsElement.style.display = "block";
@@ -114,6 +129,7 @@ let ComboBox = function () {
 
         // when the user moves away from the control
         inputElement.onblur = function () {
+            console.log (this.id + " - blur");
             self.optionsElement.style.display = "none";
         };
     };

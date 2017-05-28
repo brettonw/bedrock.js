@@ -1,3 +1,17 @@
+.combobox-input {
+    height: 25px;
+    padding: 2px;
+    border-width: 1px;
+    border-color: #bbb;
+    border-style: solid;
+    border-radius: 3px;
+    font-size:14px;
+    font-family: sans-serif;
+    -webkit-appearance: none;
+    background: url("../img/down-arrow.png") no-repeat right center rgba(255, 255, 255, 0.66);
+    background-size: 17px;
+}
+
 .combobox-pseudo-parent {
     position: relative;
     width: 0;
