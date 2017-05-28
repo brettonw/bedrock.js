@@ -1,4 +1,4 @@
-let ComboBox = function () {
+Bedrock.ComboBox = function () {
     let _ = Object.create(Bedrock.Base);
 
     _.init = function (parameters) {
@@ -10,8 +10,9 @@ let ComboBox = function () {
         // the options not to highlight from mouseover events unless the mouse has moved first
         this.mouseoverWaitsForMouseMove = false;
 
-        // get the text box from the parameters
+        // get the text box from the parameters, and its computed style
         let inputElement = this.inputElement = document.getElementById(parameters.inputElementId);
+        //let computedStyle = getComputedStyle (inputElement);
 
         // get the parent element
         let parentElement = inputElement.parentNode;
@@ -36,7 +37,10 @@ let ComboBox = function () {
         // before proceeding
         inputElement.onmousedown = function (event) {
             let x = (event.pageX - this.offsetLeft) / this.offsetWidth;
-            if (x > 0.85) {
+            let computedStyle = getComputedStyle (this);
+            let arrowSize = parseFloat(computedStyle.backgroundSize.replace ("px", ""));
+            let arrowPlacement = (this.offsetWidth - arrowSize) / this.offsetWidth;
+            if (x > arrowPlacement) {
                 inputElement.value = "";
 
                 // if the element is already focused, we need to update the options
@@ -45,7 +49,7 @@ let ComboBox = function () {
                     self.callOnChange ();
                 }
             }
-            //console.log (this.id + " - mousedown (" + x + ")");
+            //console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
         };
 
         // in case I need to capture some keys (up/down, for instance)

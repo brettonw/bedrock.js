@@ -2,6 +2,19 @@ let Database = function () {
     let $ = Object.create (null);
 
     let makeSelectElement = function (parent, id, keys, value, placeholder) {
+        let element = addElement(parent, "input", {
+            class: "combobox-input",
+            id: id,
+            placeholder: "(" + placeholder + ")",
+            type: "text",
+            onchange: function () { theBedrock.filter.onValueChange (this); }
+        });
+        Bedrock.ComboBox.new ({
+            inputElementId: id,
+            options: keys
+        });
+
+        /*
         let element = addElement(parent, "select", {
             class: "bedrockElementSelectContainer",
             id: id,
@@ -16,6 +29,7 @@ let Database = function () {
             //let selectedAttr = (encodedName == value) ? " selected" : "";
             addElement(element, "option", { value: key }).innerHTML = key;
         }
+        */
         element.value = value;
         return element;
     };
@@ -175,8 +189,9 @@ let Database = function () {
             //this.elementContainer = document.getElementById ("filterElementContainer" + index);
             this.countDiv = addElement (this.elementContainer, "div", { class: "bedrockElementTextDiv" });
 
-            let selectContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
-            this.fieldElement = makeSelectElement (selectContainer, "filterElementSelectField" + index, fieldKeys, filterField, "FILTER FIELD");
+            //let selectContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
+            this.fieldElement = makeSelectElement (this.elementContainer, "filterElementSelectField" + index, fieldKeys, filterField, "FILTER FIELD");
+
             let listContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
 
             let database = this.databaseSource.getDatabase ();
