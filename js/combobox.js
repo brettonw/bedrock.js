@@ -5,6 +5,11 @@ let ComboBox = function () {
         // scope "this" as self so I can use it in closures
         let self = this;
 
+        // if the user starts pressing keys to navigate the options list, then we don't want to
+        // automagically incure mouseover events while the list scrolls. This flag is used to tell
+        // the options not to highlight from mouseover events unless the mouse has moved first
+        this.mouseoverWaitsForMouseMove = false;
+
         // get the text box from the parameters
         let inputElement = this.inputElement = document.getElementById(parameters.inputElementId);
 
@@ -28,19 +33,10 @@ let ComboBox = function () {
         this.currentOption = null;
 
         // subscribe to various events on the input element
-        // onchange fires onblur if the value has changed
-        inputElement.onchange = function () {
-            self.updateOptions ();
-        };
-
-        // in case I need to capture some keys (up/down, for instance)
-        inputElement.onkeypress = function (event) {
-            console.log ("KEY: " + event.key);
-            this.onchange ();
-        };
 
         // in case I need to capture some keys (up/down, for instance)
         inputElement.onkeydown = function (event) {
+            self.mouseoverWaitsForMouseMove = true;
             switch (event.key) {
                 case "ArrowUp": {
                     if (self.currentOption != null) {
@@ -56,7 +52,9 @@ let ComboBox = function () {
                     self.currentOption.classList.add ("combobox-option-hover");
 
                     // set scroll pos to the current option
-                    optionsElement.scrollTop = self.currentOption.offsetTop;
+                    if (! elementIsInView(self.currentOption, optionsElement)) {
+                        optionsElement.scrollTop = self.currentOption.offsetTop;
+                    }
                     break;
                 }
                 case "ArrowDown": {
@@ -73,12 +71,15 @@ let ComboBox = function () {
                     self.currentOption.classList.add ("combobox-option-hover");
 
                     // set scroll pos to the current option
-                    optionsElement.scrollTop = self.currentOption.offsetTop;
+                    if (! elementIsInView(self.currentOption, optionsElement)) {
+                        optionsElement.scrollTop = (self.currentOption.offsetTop - optionsElement.offsetHeight) + self.currentOption.offsetHeight;
+                    }
                     break;
                 }
                 case "Enter": {
                     if (self.currentOption != null) {
                         inputElement.value = self.currentOption.innerHTML;
+                        self.onchange();
                     }
                     break;
                 }
@@ -90,25 +91,26 @@ let ComboBox = function () {
 
         // in case the user changes by pasting, does this not fire oninput?
         inputElement.onpaste = function () {
-            this.onchange ();
+            this.oninput ();
         };
 
         // oninput fires immediately when the value changes
         inputElement.oninput = function () {
+            self.updateOptions ();
             this.onchange ();
         };
 
-        // duh
-        inputElement.onclick = function () {
+        // when the control gains focus
+        inputElement.onfocus = function () {
             self.updateOptions ();
-            self.optionsElement.style.display = "block";
+            optionsElement.scrollTop = 0;
+            optionsElement.style.display = "block";
         };
 
         // when the user moves away from the control
         inputElement.onblur = function () {
             self.optionsElement.style.display = "none";
         };
-
     };
 
     _.updateOptions = function () {
@@ -137,12 +139,22 @@ let ComboBox = function () {
                         inputElement.value = option;
                         return true;
                     },
+                    onmousemove: function () {
+                        self.mouseoverWaitsForMouseMove = false;
+                    },
                     onmouseover: function () {
-                        self.currentOption = this;
-                        this.classList.add ("combobox-option-hover");
+                        if (self.mouseoverWaitsForMouseMove === false) {
+                            if (self.currentOption != null) {
+                                self.currentOption.classList.remove ("combobox-option-hover");
+                            }
+                            self.currentOption = this;
+                            this.classList.add ("combobox-option-hover");
+                        }
                     },
                     onmouseout: function () {
-                        this.classList.remove("combobox-option-hover");
+                        if (self.mouseoverWaitsForMouseMove === false) {
+                            this.classList.remove ("combobox-option-hover");
+                        }
                     }
                 }).innerHTML = option;
             }

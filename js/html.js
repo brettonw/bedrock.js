@@ -51,3 +51,17 @@ let addElement = function (parent, tag, options) {
     return element;
 };
 
+/**
+ * Utility function to tell if an element is in view in the scrolling region of a container
+ * @param element
+ * @param view
+ * @returns {boolean}
+ */
+let elementIsInView = function (element, view) {
+    let viewTop = view.scrollTop;
+    let viewBottom = view.offsetHeight + viewTop;
+    let elementTop = element.offsetTop;
+    let elementBottom = elementTop + element.offsetHeight;
+    return ((elementBottom <= viewBottom) && (elementTop >= viewTop));
+};
+

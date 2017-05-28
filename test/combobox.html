@@ -9,7 +9,7 @@
 </head>
 
 <style>
-    #testInput {
+    .test-input {
         width: 125px;
         height: 25px;
         padding: 2px;
@@ -28,7 +28,11 @@
 <div class="page-container-div">
     <h2>Test 1</h2>
     <div class="section-content-div">
-        <div><input type="text" id="testInput"></div>
+        <div><input type="text" class="test-input" id="test-input-1"></div>
+        <div style="margin-top:5px;">And some text around it for testing.</div>
+        <div><input type="text" class="test-input" id="test-input-2"></div>
+        <div style="margin-top:5px;">And some text around it for testing.</div>
+        <div><input type="text" class="test-input" id="test-input-3"></div>
         <div style="margin-top:5px;">And some text around it for testing.</div>
     </div>
 
@@ -40,5 +44,11 @@
 <script src="../js/html.js"></script>
 <script src="../js/combobox.js"></script>
 <script>
-    ComboBox.new ({ inputElementId: "testInput", options: ["a", "b", "c", "d", "e", "f", "g", "pretty", "h", "i", "j", "k", "l", "m", "n", "o"] });
+    let options = ["a", "b", "c", "domineering", "profuse",
+        "hollow", "caption", "save", "malicious", "marvelous", "mourn", "fabulous", "relieved",
+        "squealing", "secretive", "long-term", "plastic", "wipe", "person", "unarmed", "calculate",
+        "testy", "defective", "quickest", "beneficial", "blade", "gusty"];
+    ComboBox.new ({ inputElementId: "test-input-1", options: options });
+    ComboBox.new ({ inputElementId: "test-input-2", options: options });
+    ComboBox.new ({ inputElementId: "test-input-3", options: options });
 </script>
