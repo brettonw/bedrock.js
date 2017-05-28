@@ -79,9 +79,9 @@ let ComboBox = function () {
                 case "Enter": {
                     if (self.currentOption != null) {
                         inputElement.value = self.currentOption.innerHTML;
-                        self.callOnChange ();
-                        inputElement.blur ();
                     }
+                    self.callOnChange ();
+                    inputElement.blur ();
                     break;
                 }
                 case "Escape": {
@@ -128,7 +128,10 @@ let ComboBox = function () {
         // scope "this" as self so I can use it in closures
         let self = this;
 
-        // get the element
+        // there should be no currently selected option
+        self.currentOption = null;
+
+        // get the elements
         let inputElement = this.inputElement;
         let optionsElement = this.optionsElement;
 
