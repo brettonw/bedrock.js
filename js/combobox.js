@@ -79,8 +79,13 @@ let ComboBox = function () {
                 case "Enter": {
                     if (self.currentOption != null) {
                         inputElement.value = self.currentOption.innerHTML;
-                        self.onchange();
+                        self.callOnChange ();
+                        inputElement.blur ();
                     }
+                    break;
+                }
+                case "Escape": {
+                    inputElement.blur ();
                     break;
                 }
                 default:
@@ -97,7 +102,7 @@ let ComboBox = function () {
         // oninput fires immediately when the value changes
         inputElement.oninput = function () {
             self.updateOptions ();
-            this.onchange ();
+            self.callOnChange ();
         };
 
         // when the control gains focus
@@ -111,6 +116,12 @@ let ComboBox = function () {
         inputElement.onblur = function () {
             self.optionsElement.style.display = "none";
         };
+    };
+
+    _.callOnChange = function () {
+        if (("onchange" in this.inputElement) && (typeof this.inputElement.onchange === "function")) {
+            this.inputElement.onchange ();
+        }
     };
 
     _.updateOptions = function () {
@@ -137,6 +148,7 @@ let ComboBox = function () {
                     class: "combobox-option",
                     onmousedown: function () {
                         inputElement.value = option;
+                        self.callOnChange();
                         return true;
                     },
                     onmousemove: function () {
