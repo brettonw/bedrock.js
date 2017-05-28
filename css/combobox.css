@@ -28,7 +28,7 @@
     color: black;
 }
 
-.combobox-option:hover {
+.combobox-option-hover {
     color: white;
     background-color: mediumblue;
 }
