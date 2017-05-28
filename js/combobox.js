@@ -45,7 +45,7 @@ let ComboBox = function () {
                     self.callOnChange ();
                 }
             }
-            console.log (this.id + " - mousedown (" + x + ")");
+            //console.log (this.id + " - mousedown (" + x + ")");
         };
 
         // in case I need to capture some keys (up/down, for instance)
@@ -119,9 +119,9 @@ let ComboBox = function () {
             self.callOnChange ();
         };
 
-        // when the control gains focus
+        // when the control gains focus (in this order: onmousedown, focus, click)
         inputElement.onfocus = function (event) {
-            console.log (this.id + " - focus");
+            //console.log (this.id + " - focus");
             self.updateOptions ();
             optionsElement.scrollTop = 0;
             optionsElement.style.display = "block";
@@ -129,7 +129,7 @@ let ComboBox = function () {
 
         // when the user moves away from the control
         inputElement.onblur = function () {
-            console.log (this.id + " - blur");
+            //console.log (this.id + " - blur");
             self.optionsElement.style.display = "none";
         };
     };
@@ -156,9 +156,8 @@ let ComboBox = function () {
             optionsElement.removeChild (optionsElement.firstChild);
         }
 
-        // get the current value
-        let value = this.inputElement.value;
-        let regex = new RegExp (value, 'i');
+        // get the current value as a regex object for rapid matching
+        let regex = new RegExp (this.inputElement.value, 'i');
 
         // take the inputElement value and use it to filter the list
         for (let option of this.options) {
