@@ -35,7 +35,7 @@ Bedrock.ComboBox = function () {
         // create a box under it the same size, absolute position
         let optionsElement = this.optionsElement = addElement(parentElement, "div", {
             class: "combobox-options",
-            style: { "min-width": (2 * inputElement.offsetWidth) + "px" },
+            style: { "min-width": (1 * inputElement.offsetWidth) + "px" },
         });
 
         // set the options
