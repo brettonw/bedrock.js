@@ -211,11 +211,9 @@ let Database = function () {
             //let selectContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
             this.fieldElement = makeSelectElement (this.elementContainer, "filterElementSelectField" + index, fieldKeys, filterField, "FILTER FIELD");
 
-            let listContainer = addElement (this.elementContainer, "div", { class: "bedrockElementDiv" });
-
             let database = this.databaseSource.getDatabase ();
             let allFields = Database.getAllFields (database);
-            this.valueElement = makeListElement(listContainer, "filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
+            this.valueElement = makeListElement(this.elementContainer, "filterElementSelectValue" + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
             this.filteredDatabase = doFilter (database, filterField, filterValue, true);
             this.countDiv.innerHTML = this.filteredDatabase.length + "/" + database.length;
