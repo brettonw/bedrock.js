@@ -22,7 +22,7 @@
 
 .combobox-options {
     position: absolute;
-    top: 2px;
+    top: -2px;
     display: none;
     overflow-y: scroll;
     z-index: 100;
