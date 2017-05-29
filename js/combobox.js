@@ -38,8 +38,18 @@ Bedrock.ComboBox = function () {
             style: { width: inputElement.offsetWidth + "px" },
         });
 
-        // get the list of options from the parameters, expected { value: v, label: l, alternates: [a1, a2, a3] }
-        this.options = parameters.options;
+        // get the list of options from the parameters, convert it to the expected format:
+        // { value: "v", label: "m", match:"v, m" }
+        let options = this.options = [];
+        for (let option of parameters.options) {
+            if (option === Object (option)) {
+                // XXX fill this in
+            } else {
+                options.push ({ value: option, match: option });
+            }
+        }
+
+        // and start with the current option set to null
         this.currentOption = null;
 
         // subscribe to various events on the input element
@@ -176,11 +186,11 @@ Bedrock.ComboBox = function () {
 
         // take the inputElement value and use it to filter the list
         for (let option of this.options) {
-            if (option.match (regex)) {
+            if (option.match.match (regex)) {
                 addElement (optionsElement, "div", {
                     class: "combobox-option",
                     onmousedown: function () {
-                        inputElement.value = option;
+                        inputElement.value = option.value;
                         self.callOnChange();
                         return true;
                     },
@@ -201,7 +211,7 @@ Bedrock.ComboBox = function () {
                             this.classList.remove ("combobox-option-hover");
                         }
                     }
-                }).innerHTML = option;
+                }).innerHTML = option.value;
             }
         }
     };
