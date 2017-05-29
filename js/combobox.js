@@ -109,8 +109,7 @@ Bedrock.ComboBox = function () {
                 }
                 case "Enter": {
                     if (self.currentOption != null) {
-                        // XXX this... dangit...
-                        inputElement.value = self.currentOption.innerHTML;
+                        inputElement.value = self.currentOption.getAttribute ("data-value");
                     }
                     self.callOnChange ();
                     inputElement.blur ();
@@ -207,7 +206,9 @@ Bedrock.ComboBox = function () {
                         }
                     }
                 });
+                comboBoxOption.setAttribute("data-value", option.value);
 
+                //comboBoxOption.innerHTML = ("label" in option) ? option.label : option.value;
                 if ("label" in option) {
                     addElement (comboBoxOption, "div", { style: { float: "left" }}).innerHTML = option.value;
                     addElement (comboBoxOption, "div", { class: "combobox-option-label" }).innerHTML = option.label;
