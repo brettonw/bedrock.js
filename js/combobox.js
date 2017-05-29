@@ -38,19 +38,8 @@ Bedrock.ComboBox = function () {
             style: { width: inputElement.offsetWidth + "px" },
         });
 
-        // get the list of options from the parameters, convert it to the expected format:
-        // { value: "v", label: "m", match:"v, m" }
-        let options = this.options = [];
-        for (let option of parameters.options) {
-            if (option === Object (option)) {
-                // XXX fill this in
-            } else {
-                options.push ({ value: option, match: option });
-            }
-        }
-
-        // and start with the current option set to null
-        this.currentOption = null;
+        // set the options
+        this.setOptions(parameters.options);
 
         // subscribe to various events on the input element
 
@@ -73,7 +62,6 @@ Bedrock.ComboBox = function () {
 
         // in case I need to capture some keys (up/down, for instance)
         inputElement.onkeydown = function (event) {
-            self.mouseoverWaitsForMouseMove = true;
             switch (event.key) {
                 case "ArrowUp": {
                     if (self.currentOption != null) {
@@ -88,8 +76,11 @@ Bedrock.ComboBox = function () {
                     }
                     self.currentOption.classList.add ("combobox-option-hover");
 
-                    // set scroll pos to the current option
+                    // if the newly selected current option is not visible, set the scroll
+                    // pos to make it visible, and tell the options not to respond to
+                    // mouseover events until the mouse moves
                     if (! elementIsInView(self.currentOption, optionsElement)) {
+                        self.mouseoverWaitsForMouseMove = true;
                         optionsElement.scrollTop = self.currentOption.offsetTop;
                     }
                     break;
@@ -107,8 +98,11 @@ Bedrock.ComboBox = function () {
                     }
                     self.currentOption.classList.add ("combobox-option-hover");
 
-                    // set scroll pos to the current option
-                    if (! elementIsInView(self.currentOption, optionsElement)) {
+                    // if the newly selected current option is not visible, set the scroll
+                    // pos to make it visible, and tell the options not to respond to
+                    // mouseover events until the mouse moves
+                    if (!elementIsInView (self.currentOption, optionsElement)) {
+                        self.mouseoverWaitsForMouseMove = true;
                         optionsElement.scrollTop = (self.currentOption.offsetTop - optionsElement.offsetHeight) + self.currentOption.offsetHeight;
                     }
                     break;
@@ -214,10 +208,27 @@ Bedrock.ComboBox = function () {
                 }).innerHTML = option.value;
             }
         }
+
+        return this;
     };
 
     _.setOptions = function (options) {
         this.options = options;
+        // get the list of options from the parameters, convert it to the expected format:
+        // { value: "v", label: "m", match:"v, m" }
+        let conditionedOptions = this.options = [];
+        for (let option of options) {
+            if (option === Object (option)) {
+                // XXX fill this in
+            } else {
+                conditionedOptions.push ({ value: option, match: option });
+            }
+        }
+
+        // and start with the current option set to null
+        this.currentOption = null;
+
+        return this;
     };
 
     return _;
