@@ -13,9 +13,9 @@ Bedrock.ComboBox = function () {
 
         // if the user starts pressing keys to navigate the options list, then we don't
         // want to automagically incure mouseover events while the list scrolls. This flag
-        // is used to tell the options not to highlight from mouseover events unless the
-        // mouse has moved first
-        this.mouseoverWaitsForMouseMove = false;
+        // is used to tell the options not to highlight from mouseover events when the
+        // reason for the event is a keypress
+        this.allowMouseover = true;
 
         // get the text box from the parameters and its computed style, store this for
         // later use
@@ -35,7 +35,7 @@ Bedrock.ComboBox = function () {
         // create a box under it the same size, absolute position
         let optionsElement = this.optionsElement = addElement(parentElement, "div", {
             class: "combobox-options",
-            style: { width: inputElement.offsetWidth + "px" },
+            style: { "min-width": (2 * inputElement.offsetWidth) + "px" },
         });
 
         // set the options
@@ -57,7 +57,7 @@ Bedrock.ComboBox = function () {
                     self.callOnChange ();
                 }
             }
-            console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
+            //console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
         };
 
         // in case I need to capture some keys (up/down, for instance)
@@ -80,7 +80,7 @@ Bedrock.ComboBox = function () {
                     // pos to make it visible, and tell the options not to respond to
                     // mouseover events until the mouse moves
                     if (! elementIsInView(self.currentOption, optionsElement)) {
-                        self.mouseoverWaitsForMouseMove = true;
+                        self.allowMouseover = false;
                         optionsElement.scrollTop = self.currentOption.offsetTop;
                     }
                     break;
@@ -102,13 +102,14 @@ Bedrock.ComboBox = function () {
                     // pos to make it visible, and tell the options not to respond to
                     // mouseover events until the mouse moves
                     if (!elementIsInView (self.currentOption, optionsElement)) {
-                        self.mouseoverWaitsForMouseMove = true;
+                        self.allowMouseover = false;
                         optionsElement.scrollTop = (self.currentOption.offsetTop - optionsElement.offsetHeight) + self.currentOption.offsetHeight;
                     }
                     break;
                 }
                 case "Enter": {
                     if (self.currentOption != null) {
+                        // XXX this... dangit...
                         inputElement.value = self.currentOption.innerHTML;
                     }
                     self.callOnChange ();
@@ -180,32 +181,39 @@ Bedrock.ComboBox = function () {
 
         // take the inputElement value and use it to filter the list
         for (let option of this.options) {
-            if (option.match.match (regex)) {
-                addElement (optionsElement, "div", {
+            if (option.matchTarget.match (regex)) {
+                let comboBoxOption = addElement (optionsElement, "div", {
                     class: "combobox-option",
                     onmousedown: function () {
                         inputElement.value = option.value;
                         self.callOnChange();
                         return true;
                     },
-                    onmousemove: function () {
-                        self.mouseoverWaitsForMouseMove = false;
-                    },
                     onmouseover: function () {
-                        if (self.mouseoverWaitsForMouseMove === false) {
+                        //console.log ("onmouseover (" + ((self.allowMouseover === true) ? "YES" : "NO") + ")");
+                        if (self.allowMouseover === true) {
                             if (self.currentOption != null) {
                                 self.currentOption.classList.remove ("combobox-option-hover");
                             }
                             self.currentOption = this;
                             this.classList.add ("combobox-option-hover");
                         }
+                        self.allowMouseover = true;
                     },
                     onmouseout: function () {
-                        if (self.mouseoverWaitsForMouseMove === false) {
+                        //console.log ("onmouseout (" + ((self.allowMouseover === true) ? "YES" : "NO") + ")");
+                        if (self.allowMouseover === true) {
                             this.classList.remove ("combobox-option-hover");
                         }
                     }
-                }).innerHTML = option.value;
+                });
+
+                if ("label" in option) {
+                    addElement (comboBoxOption, "div", { style: { float: "left" }}).innerHTML = option.value;
+                    addElement (comboBoxOption, "div", { class: "combobox-option-label" }).innerHTML = option.label;
+                } else {
+                    comboBoxOption.innerHTML = option.value;
+                }
             }
         }
 
@@ -215,13 +223,22 @@ Bedrock.ComboBox = function () {
     _.setOptions = function (options) {
         this.options = options;
         // get the list of options from the parameters, convert it to the expected format:
-        // { value: "v", label: "m", match:"v, m" }
+        // { value: "v", label: "m", alt:"xxx" }, and we create { value: "v", label: "m", matchTarget: "v, m, xxx" }
         let conditionedOptions = this.options = [];
         for (let option of options) {
             if (option === Object (option)) {
                 // XXX fill this in
+                let conditionedOption = { value: option.value, matchTarget: option.value };
+                if ("label" in option) {
+                    conditionedOption.label = option.label;
+                    conditionedOption.matchTarget += ", " + option.label;
+                }
+                if ("alt" in option) {
+                    conditionedOption.matchTarget += ", " + option.alt;
+                }
+                conditionedOptions.push (conditionedOption);
             } else {
-                conditionedOptions.push ({ value: option, match: option });
+                conditionedOptions.push ({ value: option, matchTarget: option });
             }
         }
 

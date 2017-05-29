@@ -39,9 +39,19 @@
     opacity: 1;
     height: 23px;
     padding: 2px 4px;
-    font-size:14px;
+    font-size: 14px;
     font-family: sans-serif;
     color: black;
+}
+
+.combobox-option-label {
+    margin-left: 10px;
+    height: 23px;
+    line-height: 19px;
+    padding: 2px 4px;
+    font-size: 9px;
+    color: gray;
+    float: right;
 }
 
 .combobox-option-hover {
