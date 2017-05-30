@@ -54,8 +54,8 @@ Bedrock.ComboBox = function () {
                 // if the element is already focused, we need to update the options
                 if (this === document.activeElement) {
                     self.updateOptions ();
-                    self.callOnChange ();
                 }
+                self.callOnChange ();
             }
             //console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
         };
