@@ -21,7 +21,7 @@
         <div style="margin-bottom:5px;">And some text around it for testing.</div>
         <div><input type="text" class="combobox-input" id="test-input-2" placeholder="test 2" onchange="document.getElementById('test-output').innerHTML = test2.value;"></div>
         <div style="margin-bottom:5px;">And some text around it for testing.</div>
-        <div><input type="text" class="combobox-input" id="test-input-3" placeholder="test 3"></div>
+        <div id="test-input-3-parent"></div>
         <div style="margin-bottom:5px;">And some text around it for testing.</div>
     </div>
 
@@ -40,5 +40,5 @@
         "testy", "defective", "quickest", "beneficial", "blade", "gusty"];
     Bedrock.ComboBox.new ({ inputElementId: "test-input-1", options: options });
     let test2 = Bedrock.ComboBox.new ({ inputElementId: "test-input-2", options: options });
-    Bedrock.ComboBox.new ({ inputElementId: "test-input-3", options: options });
+    Bedrock.ComboBox.new ({ inputElementId: "test-input-3", parentElementId: "test-input-3-parent", placeholder: "test 3", options: options });
 </script>
