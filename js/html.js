@@ -20,7 +20,7 @@ let div = function (cssClass, content) {
     return block ("div", { "class": cssClass }, content);
 };
 
-let addElement = function (parent, tag, options) {
+let addElement = function (parent, tag, options, before) {
     let element = document.createElement (tag);
     let optionNames = Object.keys (options);
     for (let optionName of optionNames) {
@@ -47,7 +47,7 @@ let addElement = function (parent, tag, options) {
             }
         }
     }
-    parent.appendChild (element);
+    parent.insertBefore(element, (typeof before !== "undefined") ? before : null);
     return element;
 };
 

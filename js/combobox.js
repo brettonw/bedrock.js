@@ -12,140 +12,154 @@ Bedrock.ComboBox = function () {
         let self = this;
 
         // if the user starts pressing keys to navigate the options list, then we don't
-        // want to automagically incure mouseover events while the list scrolls. This flag
+        // want to automagically incur mouseover events while the list scrolls. This flag
         // is used to tell the options not to highlight from mouseover events when the
         // reason for the event is a keypress
         this.allowMouseover = true;
 
-        // get the text box from the parameters and its computed style, store this for
-        // later use
+        // get the input id and try to get the element, if there isn't one, make one
         let inputElementId = parameters.inputElementId;
-        let inputElement = this.inputElement = document.getElementById(inputElementId);
-        //let computedStyle = getComputedStyle (inputElement);
-        //inputElement.setAttribute("data", { bedrock: this });
         indexById[inputElementId] = this;
+        let parentElement, inputElement;
+        if ((inputElement = document.getElementById (inputElementId)) == null) {
+            parentElement = document.getElementById(parameters.parentElementId);
+            if (parentElement != null) {
+                inputElement = addElement (parentElement, "input", {
+                    class: "combobox-input",
+                    id: inputElementId,
+                    placeholder: parameters.placeholder,
+                    type: "text",
+                    onchange: parameters.onchange
+                });
+            } else {
+                // error out
+                console.log ("ERROR: expected input element Id or a parent element Id to create one");
+                return null;
+            }
+        } else {
+            parentElement = inputElement.parentNode;
+        }
+        this.inputElement = inputElement;
 
-        // get the parent element
-        let parentElement = inputElement.parentNode;
-
-        // put a pseudo-parent down so the popup will always be under it but not in the
-        // document flow
-        parentElement = addElement(parentElement, "div", { class: "combobox-pseudo-parent" });
-
-        // create a box under it the same size, absolute position
-        let optionsElement = this.optionsElement = addElement(parentElement, "div", { class: "combobox-options" });
+        // put a pseudo-parent down so the popup will always be under the input, but not
+        // in the document flow, and create our options container inside that - the pseudo-
+        // parent has position relative with sizes of 0, and the child is placed with
+        // absolute position under that. See the CSS file for details.
+        let pseudoParentElement = addElement(parentElement, "div", { class: "combobox-pseudo-parent" });
+        let optionsElement = this.optionsElement = addElement(pseudoParentElement, "div", { id: inputElementId + "-options", class: "combobox-options" });
 
         // set the options
         this.setOptions(parameters.options);
 
-        // subscribe to various events on the input element
+        // subscribe to various events on the input element to do our thing
+        {
+            // capture the mousedown, and if it's on the far right of the input element,
+            // clear the text before proceeding
+            inputElement.onmousedown = function (event) {
+                let x = (event.pageX - this.offsetLeft) / this.offsetWidth;
+                let arrowPlacement = (this.offsetWidth - parseFloat (getComputedStyle (this).backgroundSize)) / this.offsetWidth;
+                if (x > arrowPlacement) {
+                    inputElement.value = "";
 
-        // capture the mousedown, and if it's on the far right of the input element,
-        // clear the text before proceeding
-        inputElement.onmousedown = function (event) {
-            let x = (event.pageX - this.offsetLeft) / this.offsetWidth;
-            let arrowPlacement = (this.offsetWidth - parseFloat (getComputedStyle (this).backgroundSize)) / this.offsetWidth;
-            if (x > arrowPlacement) {
-                inputElement.value = "";
-
-                // if the element is already focused, we need to update the options
-                if (this === document.activeElement) {
-                    self.updateOptions ();
+                    // if the element is already focused, we need to update the options
+                    if (this === document.activeElement) {
+                        self.updateOptions ();
+                    }
+                    self.callOnChange ();
                 }
-                self.callOnChange ();
-            }
-            //console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
-        };
+                //console.log (this.id + " - mousedown (" + x + "/" + arrowPlacement + ")");
+            };
 
-        // in case I need to capture some keys (up/down, for instance)
-        inputElement.onkeydown = function (event) {
-            switch (event.key) {
-                case "ArrowUp": {
-                    if (self.currentOption != null) {
-                        self.currentOption.classList.remove ("combobox-option-hover");
-                        if (self.currentOption.previousSibling != null) {
-                            self.currentOption = self.currentOption.previousSibling;
+            // capture some keys (up/down, for instance)
+            inputElement.onkeydown = function (event) {
+                switch (event.key) {
+                    case "ArrowUp": {
+                        if (self.currentOption != null) {
+                            self.currentOption.classList.remove ("combobox-option-hover");
+                            if (self.currentOption.previousSibling != null) {
+                                self.currentOption = self.currentOption.previousSibling;
+                            } else {
+                                self.currentOption = optionsElement.lastChild;
+                            }
                         } else {
                             self.currentOption = optionsElement.lastChild;
                         }
-                    } else {
-                        self.currentOption = optionsElement.lastChild;
-                    }
-                    self.currentOption.classList.add ("combobox-option-hover");
+                        self.currentOption.classList.add ("combobox-option-hover");
 
-                    // if the newly selected current option is not visible, set the scroll
-                    // pos to make it visible, and tell the options not to respond to
-                    // mouseover events until the mouse moves
-                    if (! elementIsInView(self.currentOption, optionsElement)) {
-                        self.allowMouseover = false;
-                        optionsElement.scrollTop = self.currentOption.offsetTop;
+                        // if the newly selected current option is not visible, set the scroll
+                        // pos to make it visible, and tell the options not to respond to
+                        // mouseover events until the mouse moves
+                        if (!elementIsInView (self.currentOption, optionsElement)) {
+                            self.allowMouseover = false;
+                            optionsElement.scrollTop = self.currentOption.offsetTop;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case "ArrowDown": {
-                    if (self.currentOption != null) {
-                        self.currentOption.classList.remove ("combobox-option-hover");
-                        if (self.currentOption.nextSibling != null) {
-                            self.currentOption = self.currentOption.nextSibling;
+                    case "ArrowDown": {
+                        if (self.currentOption != null) {
+                            self.currentOption.classList.remove ("combobox-option-hover");
+                            if (self.currentOption.nextSibling != null) {
+                                self.currentOption = self.currentOption.nextSibling;
+                            } else {
+                                self.currentOption = optionsElement.firstChild;
+                            }
                         } else {
                             self.currentOption = optionsElement.firstChild;
                         }
-                    } else {
-                        self.currentOption = optionsElement.firstChild;
+                        self.currentOption.classList.add ("combobox-option-hover");
+
+                        // if the newly selected current option is not visible, set the scroll
+                        // pos to make it visible, and tell the options not to respond to
+                        // mouseover events until the mouse moves
+                        if (!elementIsInView (self.currentOption, optionsElement)) {
+                            self.allowMouseover = false;
+                            optionsElement.scrollTop = (self.currentOption.offsetTop - optionsElement.offsetHeight) + self.currentOption.offsetHeight;
+                        }
+                        break;
                     }
-                    self.currentOption.classList.add ("combobox-option-hover");
-
-                    // if the newly selected current option is not visible, set the scroll
-                    // pos to make it visible, and tell the options not to respond to
-                    // mouseover events until the mouse moves
-                    if (!elementIsInView (self.currentOption, optionsElement)) {
-                        self.allowMouseover = false;
-                        optionsElement.scrollTop = (self.currentOption.offsetTop - optionsElement.offsetHeight) + self.currentOption.offsetHeight;
+                    case "Enter": {
+                        if (self.currentOption != null) {
+                            inputElement.value = self.currentOption.getAttribute ("data-value");
+                        }
+                        self.callOnChange ();
+                        inputElement.blur ();
+                        break;
                     }
-                    break;
-                }
-                case "Enter": {
-                    if (self.currentOption != null) {
-                        inputElement.value = self.currentOption.getAttribute ("data-value");
+                    case "Escape": {
+                        inputElement.blur ();
+                        break;
                     }
-                    self.callOnChange ();
-                    inputElement.blur ();
-                    break;
+                    default:
+                        return true;
                 }
-                case "Escape": {
-                    inputElement.blur ();
-                    break;
-                }
-                default:
-                    return true;
-            }
-            return false;
-        };
+                return false;
+            };
 
-        // in case the user changes by pasting, does this not fire oninput?
-        inputElement.onpaste = function () {
-            this.oninput ();
-        };
+            // in case the user changes by pasting, does this not fire oninput?
+            inputElement.onpaste = function () {
+                this.oninput ();
+            };
 
-        // oninput fires immediately when the value changes
-        inputElement.oninput = function () {
-            self.updateOptions ();
-            self.callOnChange ();
-        };
+            // oninput fires immediately when the value changes
+            inputElement.oninput = function () {
+                self.updateOptions ();
+                self.callOnChange ();
+            };
 
-        // when the control gains focus (in this order: onmousedown, focus, click)
-        inputElement.onfocus = function (event) {
-            //console.log (this.id + " - focus");
-            self.updateOptions ();
-            optionsElement.scrollTop = 0;
-            optionsElement.style.display = "block";
-        };
+            // when the control gains focus (in this order: onmousedown, focus, click)
+            inputElement.onfocus = function (event) {
+                //console.log (this.id + " - focus");
+                self.updateOptions ();
+                optionsElement.scrollTop = 0;
+                optionsElement.style.display = "block";
+            };
 
-        // when the user moves away from the control
-        inputElement.onblur = function () {
-            //console.log (this.id + " - blur");
-            self.optionsElement.style.display = "none";
-        };
+            // when the user moves away from the control
+            inputElement.onblur = function () {
+                //console.log (this.id + " - blur");
+                self.optionsElement.style.display = "none";
+            };
+        }
 
         return this;
     };
@@ -225,7 +239,6 @@ Bedrock.ComboBox = function () {
         let conditionedOptions = this.options = [];
         for (let option of options) {
             if (option === Object (option)) {
-                // XXX fill this in
                 let conditionedOption = { value: option.value, matchTarget: option.value };
                 if ("label" in option) {
                     conditionedOption.label = option.label;
@@ -245,6 +258,24 @@ Bedrock.ComboBox = function () {
 
         return this;
     };
+
+    // properties, to allow the combobox object to be used as a drop-in replacement for an
+    // input element
+    // "value" property
+    Object.defineProperty (_, "value", {
+        get: function () {
+            return this.inputElement.value;
+        },
+        set: function (value) {
+            this.inputElement.value = value;
+        }
+    });
+
+    Object.defineProperty (_, "onchange", {
+        set: function (onchange) {
+            this.inputElement.onchange = onchange;
+        }
+    });
 
     return _;
 } ();
