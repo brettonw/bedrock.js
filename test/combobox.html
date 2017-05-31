@@ -19,7 +19,10 @@
     <div class="section-content-div">
         <div><input type="text" class="combobox-input" id="test-input-1" placeholder="test 1"></div>
         <div style="margin-bottom:5px;">And some text around it for testing.</div>
-        <div><input type="text" class="combobox-input" id="test-input-2" placeholder="test 2" onchange="document.getElementById('test-output').innerHTML = test2.value;"></div>
+        <div>
+            <input type="text" class="combobox-input" id="test-input-2" placeholder="test 2" onchange="document.getElementById('test-output').innerHTML = test2.value;">
+            <div style="margin: 5px 0px;">text after the input</div>
+        </div>
         <div style="margin-bottom:5px;">And some text around it for testing.</div>
         <div id="test-input-3-parent"></div>
         <div style="margin-bottom:5px;">And some text around it for testing.</div>
@@ -38,7 +41,7 @@
         { value: "hidden", label: "Look" }, { label: "Abe Shinzou", value: "安倍 晋三", alt: "あべしんぞう" },
         "squealing", "secretive", "long-term", "plastic", "wipe", "person", "unarmed", "calculate",
         "testy", "defective", "quickest", "beneficial", "blade", "gusty"];
-    Bedrock.ComboBox.new ({ inputElementId: "test-input-1", options: options });
+    Bedrock.ComboBox.new ({ inputElementId: "test-input-1", options: options, value: "360" });
     let test2 = Bedrock.ComboBox.new ({ inputElementId: "test-input-2", options: options });
-    Bedrock.ComboBox.new ({ inputElementId: "test-input-3", parentElementId: "test-input-3-parent", placeholder: "test 3", options: options });
+    Bedrock.ComboBox.new ({ inputElementId: "test-input-3", parentElementId: "test-input-3-parent", placeholder: "test 3", value: "24", options: options });
 </script>

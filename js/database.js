@@ -2,19 +2,15 @@ let Database = function () {
     let $ = Object.create (null);
 
     let addComboBoxElement = function (parent, id, keys, value, placeholder) {
-        let element = addElement(parent, "input", {
-            class: "combobox-input",
-            id: id,
+        let combobox = Bedrock.ComboBox.new ({
+            parentElementId: parent.id,
             placeholder: "(" + placeholder + ")",
-            type: "text",
+            inputElementId: id,
+            options: keys,
             onchange: function () { theBedrock.filter.onValueChange (this); }
         });
-        Bedrock.ComboBox.new ({
-            inputElementId: id,
-            options: keys
-        });
-        element.value = value;
-        return element;
+        combobox.value = value;
+        return combobox;
     };
 
     let updateListElement = function (id, keys, value) {
@@ -134,6 +130,9 @@ let Database = function () {
         const FILTER_ELEMENT_VALUE = "filter-element-value";
 
         _.init = function (parameters) {
+            // scope this so I can use it in closures
+            let scope = this;
+
             let index = this.index = parameters.index;
             this.databaseSource = parameters.databaseSource;
             this.owner = parameters.owner;
@@ -146,10 +145,35 @@ let Database = function () {
 
             // create the select and editing elements inside the container
             this.countDiv = addElement (this.elementContainer, "div", { class: "database-element-text-div" });
-            this.fieldElement = addComboBoxElement (this.elementContainer, FILTER_ELEMENT_FIELD + index, fieldKeys, filterField, "FILTER FIELD");
+            //this.fieldComboBox = addComboBoxElement (this.elementContainer, FILTER_ELEMENT_FIELD + index, fieldKeys, filterField, "FILTER FIELD");
+
+            let fieldComboBox = this.fieldComboBox = Bedrock.ComboBox.new ({
+                parentElementId: this.elementContainer.id,
+                placeholder: "(FILTER FIELD)",
+                inputElementId: FILTER_ELEMENT_FIELD + index,
+                options: fieldKeys,
+                value: filterField,
+                onchange: function () {
+                    scope.valueComboBox.value = "";
+                    scope.update ();
+                }
+            });
+
+
             let database = this.databaseSource.getDatabase ();
             let allFields = Database.getAllFields (database);
-            this.valueElement = addComboBoxElement(this.elementContainer, FILTER_ELEMENT_VALUE + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
+            //this.valueElement = addComboBoxElement(this.elementContainer, FILTER_ELEMENT_VALUE + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
+
+            let valueComboBox = this.valueComboBox = Bedrock.ComboBox.new ({
+                parentElementId: this.elementContainer.id,
+                placeholder: "(FILTER VALUE)",
+                inputElementId: FILTER_ELEMENT_VALUE + index,
+                options: (filterField in allFields) ? allFields[filterField] : [],
+                value: filterValue,
+                onchange: function () {
+                    scope.finishUpdate ();
+                }
+            });
 
             this.filteredDatabase = doFilter (database, filterField, filterValue, true);
             this.countDiv.innerHTML = this.filteredDatabase.length + "/" + database.length;
@@ -158,26 +182,22 @@ let Database = function () {
         };
 
         _.update = function () {
+            // rebuild the value options
             let database = this.databaseSource.getDatabase ();
-            let filterField = this.fieldElement.value;
-            let filterValue = this.valueElement.value;
-            let index = this.index;
+            let allFields = Database.getAllFields (database);
+            this.valueComboBox.setOptions ((this.fieldComboBox.value in allFields) ? allFields[this.fieldComboBox.value] : []);
 
-            this.filteredDatabase = doFilter (database, filterField, filterValue, true);
+            this.finishUpdate ();
+        };
+
+        _.finishUpdate = function () {
+            let database = this.databaseSource.getDatabase ();
+            this.filteredDatabase = doFilter (database, this.fieldComboBox.value, this.valueComboBox.value, true);
             this.countDiv.innerHTML = this.filteredDatabase.length + "/" + database.length;
-            this.owner.push (index);
+            this.owner.push (this.index);
         };
 
         _.onValueChange = function (updatedControl) {
-            if (updatedControl === this.fieldElement) {
-                let filterField = updatedControl.value;
-                let filterValue = this.valueElement.value = "";
-
-                // rebuild the value select
-                let database = this.databaseSource.getDatabase ();
-                let allFields = Database.getAllFields (database);
-                updateListElement (FILTER_ELEMENT_VALUE + this.index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
-            }
             this.update ();
         };
 
@@ -187,12 +207,17 @@ let Database = function () {
 
         _.setFieldValue = function (filterField, filterValue) {
             // set the filter field value
-            this.fieldElement.value = filterField;
-
+            this.fieldComboBox.value = filterField;
+/*
             // rebuild the value select
             let database = this.databaseSource.getDatabase ();
             let allFields = Database.getAllFields (database);
             updateListElement (FILTER_ELEMENT_VALUE + this.index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
+            */
+            let database = this.databaseSource.getDatabase ();
+            let allFields = Database.getAllFields (database);
+            this.valueComboBox.setOptions ((this.fieldComboBox.value in allFields) ? allFields[this.fieldComboBox.value] : []);
+            this.valueComboBox.value = filterValue;
         };
 
         return _;
@@ -259,10 +284,10 @@ let Database = function () {
             let index = length - 1;
 
             // this was the last one, reverse up the list looking for the last full filter
-            while ((filters[index].fieldElement.value.length == 0) && (index > 0)) {
+            while ((filters[index].fieldComboBox.value.length == 0) && (index > 0)) {
                 --index;
             }
-            if (filters[index].fieldElement.value.length > 0) {
+            if (filters[index].fieldComboBox.value.length > 0) {
                 ++index;
             }
             if (index < length) {

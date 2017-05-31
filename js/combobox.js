@@ -49,12 +49,15 @@ Bedrock.ComboBox = function () {
                 parentElement = inputElement.parentNode;
             }
             this.inputElement = inputElement;
+            if ("value" in parameters) {
+                this.inputElement.value = parameters.value
+            }
 
-            // put a pseudo-parent down so the popup will always be under the input, but not
+                // put a pseudo-parent down so the popup will always be under the input, but not
             // in the document flow, and create our options container inside that - the pseudo-
             // parent has position relative with sizes of 0, and the child is placed with
             // absolute position under that. See the CSS file for details.
-            let pseudoParentElement = addElement (parentElement, "div", { class: "combobox-pseudo-parent" });
+            let pseudoParentElement = addElement (parentElement, "div", { class: "combobox-pseudo-parent" }, inputElement.nextSibling);
             let optionsElement = this.optionsElement = addElement (pseudoParentElement, "div", { id: inputElementId + "-options", class: "combobox-options" });
 
             // set the options
