@@ -91,3 +91,9 @@ input[type=list].form-input {
 
 input[type=checkbox].form-input {
 }
+
+.combobox-options {
+    top: 13px;
+    left: -245px;
+    width: 375px;
+}
