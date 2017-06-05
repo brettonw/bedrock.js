@@ -259,12 +259,15 @@ Bedrock.ComboBox = function () {
                 });
                 comboBoxOption.setAttribute("data-value", option.value);
 
+                // cap the display at 32 chars
+                let display = (option.value.length > 32) ? (option.value.substr(0, 30) + "...") : option.value;
+
                 //comboBoxOption.innerHTML = ("label" in option) ? option.label : option.value;
                 if ("label" in option) {
-                    addElement (comboBoxOption, "div", { style: { float: "left" }}).innerHTML = option.value;
+                    addElement (comboBoxOption, "div", { style: { float: "left" }}).innerHTML = display;
                     addElement (comboBoxOption, "div", { class: "combobox-option-label" }).innerHTML = option.label;
                 } else {
-                    comboBoxOption.innerHTML = option.value;
+                    comboBoxOption.innerHTML = display;
                 }
             }
         }
