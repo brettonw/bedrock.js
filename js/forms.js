@@ -88,24 +88,6 @@ let Forms = function () {
                         inputObject.pattern = input.pattern;
                     }
                     break;
-
-                    /*
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.LIST, class: "form-input", placeholder: input.placeholder });
-                    if (typeof input.options !== "undefined") {
-                        let datalist = document.createElement ("datalist");
-                        datalist.id = (DATALIST + formName + INPUT + input.name);
-                        for (let option of input.options) {
-                            let value = (option === Object (option)) ? option.value : option;
-                            let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
-                            addElement (datalist, "option", { value: value, innerHTML: label });
-                        }
-                        formDivElement.appendChild (datalist);
-                        inputObject.inputElement.setAttribute ("list", datalist.id);
-                    }
-                    inputObject.value = value;
-                    inputObject.inputElement.value = value;
-                    */
-                    break;
                 }
             }
 
