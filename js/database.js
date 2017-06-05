@@ -1,28 +1,6 @@
 let Database = function () {
     let $ = Object.create (null);
 
-    let addComboBoxElement = function (parent, id, keys, value, placeholder) {
-        let combobox = Bedrock.ComboBox.new ({
-            parentElementId: parent.id,
-            placeholder: "(" + placeholder + ")",
-            inputElementId: id,
-            options: keys,
-            onchange: function () { theBedrock.filter.onValueChange (this); }
-        });
-        combobox.value = value;
-        return combobox;
-    };
-
-    let updateListElement = function (id, keys, value) {
-        Bedrock.ComboBox.getById (id).setOptions (keys);
-
-        // set the element value
-        let element = document.getElementById (id);
-        element.value = value;
-        return element;
-    };
-
-    //------------------------------------------------------------------------------------
     // getAllFields - traverses an array of objects to produce an object that contains all
     // the field names, and all the associated values of each field
     $.getAllFields = function (database) {
@@ -208,16 +186,13 @@ let Database = function () {
         _.setFieldValue = function (filterField, filterValue) {
             // set the filter field value
             this.fieldComboBox.value = filterField;
-/*
+
             // rebuild the value select
             let database = this.databaseSource.getDatabase ();
             let allFields = Database.getAllFields (database);
-            updateListElement (FILTER_ELEMENT_VALUE + this.index, (filterField in allFields) ? allFields[filterField] : [], filterValue);
-            */
-            let database = this.databaseSource.getDatabase ();
-            let allFields = Database.getAllFields (database);
-            this.valueComboBox.setOptions ((this.fieldComboBox.value in allFields) ? allFields[this.fieldComboBox.value] : []);
-            this.valueComboBox.value = filterValue;
+            this.valueComboBox
+                .setOptions ((this.fieldComboBox.value in allFields) ? allFields[this.fieldComboBox.value] : [])
+                .value = filterValue;
         };
 
         return _;

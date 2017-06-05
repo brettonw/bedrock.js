@@ -19,41 +19,64 @@ Bedrock.ComboBox = function () {
             // reason for the event is a keypress
             this.allowMouseover = true;
 
-            // get the input id and try to get the element, if there isn't one, make one
-            let inputElementId = parameters.inputElementId;
-            indexById[inputElementId] = this;
-            let parentElement, inputElement;
-            if ((inputElement = document.getElementById (inputElementId)) == null) {
-                if ("parentElementId" in parameters) {
-                    let parentElementId = parameters.parentElementId;
-                    parentElement = document.getElementById (parentElementId);
-                    if (parentElement != null) {
-                        inputElement = addElement (parentElement, "input", {
-                            class: "combobox-input",
+            // we will need the parentElement, this is a placeholder for it
+            let inputElement, parentElement;
+
+            // the user must specify an inputElementId, or inputElement that we can get the
+            // inputElementId from
+            let inputElementId = ("inputElementId" in parameters) ? parameters.inputElementId :
+                ("inputElement" in parameters) ? parameters.inputElement.id : null;
+            if (inputElementId != null) {
+                // we know we have an id, now try to get the inputElement
+                inputElement = ("inputElement" in parameters) ? parameters.inputElement : document.getElementById (inputElementId);
+                if (inputElement == null) {
+                    // have to create the inputElement, the user must specify a
+                    // parentElementId, or parentElement that we can get the
+                    // parentElementId from
+                    let parentElementId = ("parentElementId" in parameters) ? parameters.parentElementId :
+                        ("parentElement" in parameters) ? parameters.parentElement.id : null;
+                    if (parentElementId != null) {
+                        // get the parent element
+                        parentElement = ("parentElement" in parameters) ? parameters.parentElement : document.getElementById (parentElementId);
+
+                        // setup the creation parameters for the input element
+                        let inputElementParameters = {
+                            classes: ["combobox-input"],
                             id: inputElementId,
                             placeholder: ("placeholder" in parameters) ? parameters.placeholder : inputElementId,
                             type: "text",
                             onchange: parameters.onchange
-                        });
+                        };
+
+                        // depending on whether there is "class" in the parameters
+                        if ("class" in parameters) {
+                            inputElementParameters.classes.push (parameters.class);
+                        }
+
+                        // now create the input element
+                        inputElement = addElement (parentElement, "input", inputElementParameters);
                     } else {
-                        // error out
-                        console.log ("ERROR: specified 'parentElementId' is not found (" + parentElementId + ").");
+                        // fatal error, don't know where to create the input
+                        console.log ("ERROR: expected 'parentElementId' or 'parentElement'.");
                         return null;
                     }
                 } else {
-                    // error out
-                    console.log ("ERROR: expected input element or a 'parentElementId' to create one.");
-                    return null;
+                    // the inputElement was found, let's retrieve its parent
+                    parentElement = inputElement.parentNode;
                 }
             } else {
-                parentElement = inputElement.parentNode;
+                // fatal error, no id was supplied, and none was findable
+                console.log ("ERROR: expected 'inputElementId' or 'inputElement'.");
+                return null;
             }
+
+            // now store the results so we can work with them, and set the value
             this.inputElement = inputElement;
             if ("value" in parameters) {
                 this.inputElement.value = parameters.value
             }
 
-                // put a pseudo-parent down so the popup will always be under the input, but not
+            // put a pseudo-parent down so the popup will always be under the input, but not
             // in the document flow, and create our options container inside that - the pseudo-
             // parent has position relative with sizes of 0, and the child is placed with
             // absolute position under that. See the CSS file for details.

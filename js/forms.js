@@ -43,10 +43,11 @@ let Forms = function () {
             };
 
             // and the input element depending on the type
+            let inputElementId = formName + INPUT + input.name;
             switch (input.type) {
                 case _.TEXT: {
                     let value = ("value" in input) ? input.value : "";
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.TEXT, class: "form-input", placeholder: input.placeholder, value: value });
+                    inputObject.inputElement = addElement (formDivElement, "input", { id: inputElementId, type: _.TEXT, class: "form-input", placeholder: input.placeholder, value: value });
                     inputObject.value = value;
                     if ("pattern" in input) {
                         inputObject.pattern = input.pattern;
@@ -55,12 +56,12 @@ let Forms = function () {
                 }
                 case _.CHECKBOX: {
                     let checked = ("checked" in input) ? input.checked : false;
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.CHECKBOX, class: "form-input", checked: checked });
+                    inputObject.inputElement = addElement (formDivElement, "input", { id: inputElementId, type: _.CHECKBOX, class: "form-input", checked: checked });
                     inputObject.checked = checked;
                     break;
                 }
                 case _.SELECT: {
-                    let inputElement = inputObject.inputElement = addElement (formDivElement, _.SELECT, { id: (formName + INPUT + input.name), class: "form-input" });
+                    let inputElement = inputObject.inputElement = addElement (formDivElement, _.SELECT, { id: inputElementId, class: "form-input" });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
                         let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
@@ -73,6 +74,22 @@ let Forms = function () {
                 }
                 case _.LIST: {
                     let value = ("value" in input) ? input.value : "";
+
+                    inputObject.inputElement = Bedrock.ComboBox.new ({
+                        class: "form-input",
+                        parentElement: formDivElement,
+                        placeholder: input.placeholder,
+                        inputElementId: inputElementId,
+                        options: input.options,
+                        value: value
+                    });
+
+                    if ("pattern" in input) {
+                        inputObject.pattern = input.pattern;
+                    }
+                    break;
+
+                    /*
                     inputObject.inputElement = addElement (formDivElement, "input", { id: (formName + INPUT + input.name), type: _.LIST, class: "form-input", placeholder: input.placeholder });
                     if (typeof input.options !== "undefined") {
                         let datalist = document.createElement ("datalist");
@@ -87,6 +104,7 @@ let Forms = function () {
                     }
                     inputObject.value = value;
                     inputObject.inputElement.value = value;
+                    */
                     break;
                 }
             }
@@ -113,7 +131,9 @@ let Forms = function () {
             if (input.required) {
                 let valid = true;
                 switch (input.type) {
-                    case _.TEXT: {
+                    case _.TEXT:
+                    case _.SELECT:
+                    case _.LIST: {
                         if ("pattern" in input) {
                             valid = (input.inputElement.value.match (input.pattern) !== null);
                         } else  {
@@ -123,11 +143,6 @@ let Forms = function () {
                     }
                     case _.CHECKBOX: {
                         valid = input.inputElement.checked;
-                        break;
-                    }
-                    case _.SELECT:
-                    case _.LIST: {
-                        valid = (input.inputElement.value.length > 0);
                         break;
                     }
                 }
