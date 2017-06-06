@@ -34,6 +34,7 @@ let Forms = function () {
             // create the div and set the title
             let formDivElement = addElement (divElement, "div", { class: "form-div" });
             addElement (formDivElement, "div", { class: "form-title-div", innerHTML: input.label });
+            let parentDiv = addElement (formDivElement, "div", { class: "form-input-div"});
 
             // now add the actual input
             let inputObject = inputs[input.name] = {
@@ -47,7 +48,7 @@ let Forms = function () {
             switch (input.type) {
                 case _.TEXT: {
                     let value = ("value" in input) ? input.value : "";
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: inputElementId, type: _.TEXT, class: "form-input", placeholder: input.placeholder, value: value });
+                    inputObject.inputElement = addElement (parentDiv, "input", { id: inputElementId, type: _.TEXT, class: "form-input", placeholder: input.placeholder, value: value });
                     inputObject.value = value;
                     if ("pattern" in input) {
                         inputObject.pattern = input.pattern;
@@ -56,12 +57,12 @@ let Forms = function () {
                 }
                 case _.CHECKBOX: {
                     let checked = ("checked" in input) ? input.checked : false;
-                    inputObject.inputElement = addElement (formDivElement, "input", { id: inputElementId, type: _.CHECKBOX, class: "form-input", checked: checked });
+                    inputObject.inputElement = addElement (parentDiv, "input", { id: inputElementId, type: _.CHECKBOX, class: "form-input", checked: checked });
                     inputObject.checked = checked;
                     break;
                 }
                 case _.SELECT: {
-                    let inputElement = inputObject.inputElement = addElement (formDivElement, _.SELECT, { id: inputElementId, class: "form-input" });
+                    let inputElement = inputObject.inputElement = addElement (parentDiv, _.SELECT, { id: inputElementId, class: "form-input" });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
                         let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
@@ -77,7 +78,7 @@ let Forms = function () {
 
                     inputObject.inputElement = Bedrock.ComboBox.new ({
                         class: "form-input",
-                        parentElement: formDivElement,
+                        parentElement: parentDiv,
                         placeholder: input.placeholder,
                         inputElementId: inputElementId,
                         options: input.options,

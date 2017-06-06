@@ -56,15 +56,20 @@
     align-items: center;
 }
 
-.form-input {
+.form-input-div {
     height: 100%;
     width: 250px;
+}
+
+.form-input {
+    height: 100%;
+    width: 100%;
     padding: 4px 5px;
 }
 
 select.form-input {
-    background: url("../img/down-arrow.png") no-repeat right center rgba(255, 255, 255, 0.66);
-    background-size: 17px;
+    background: url("../img/down-arrow.png") no-repeat right center rgba(255, 255, 255, 1.0);
+    background-size: 15px;
     height: 25px;
     line-height: 15px;
     border-width: 1px;
@@ -82,18 +87,13 @@ input[type=text].form-input {
     -webkit-appearance: none;
 }
 
-input[type=list].form-input {
-    border-width: 1px;
-    border-color: #ddd;
-    border-radius: 2px;
-    border-style: solid;
-}
-
 input[type=checkbox].form-input {
 }
 
 .combobox-options {
-    top: 13px;
-    left: -245px;
     width: 325px;
 }
+
+.combobox-option {
+}
+

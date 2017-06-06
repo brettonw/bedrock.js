@@ -1,7 +1,7 @@
 .combobox-input {
     width: 125px;
     height: 23px;
-    padding: 2px 4px;
+    padding: 2px 17px 2px 4px;
     border-width: 1px;
     border-color: #bbb;
     border-style: solid;
@@ -9,8 +9,8 @@
     font-size:12px;
     font-family: sans-serif;
     -webkit-appearance: none;
-    background: url("../img/down-arrow.png") no-repeat right center rgba(255, 255, 255, 0.66);
-    background-size: 17px;
+    background: url("../img/down-arrow.png") no-repeat right center rgba(255, 255, 255, 1.0);
+    background-size: 15px;
     margin-bottom: 4px;
 }
 
@@ -38,9 +38,10 @@
 
 .combobox-option {
     opacity: 1;
-    height: 23px;
+    height: 19px;
     padding: 2px 4px;
-    font-size: 14px;
+    font-size: 11px;
+    line-height: 15px;
     font-family: sans-serif;
     color: black;
     vertical-align: middle;
@@ -48,8 +49,8 @@
 
 .combobox-option-label {
     margin-left: 10px;
-    height: 23px;
-    line-height: 19px;
+    height: 19px;
+    line-height: 11px;
     padding: 2px 4px;
     font-size: 9px;
     color: gray;
