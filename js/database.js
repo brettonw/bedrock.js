@@ -71,7 +71,7 @@ let Database = function () {
             // the individual filter function
             let regex = new RegExp (filterValue, 'i')
             let matchValue = function (value) {
-                let matchResult = value.match (regex);
+                let matchResult = value.toString().match (regex);
                 return ((matchResult != null) === shouldMatch);
             };
 
