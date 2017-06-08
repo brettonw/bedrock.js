@@ -22,7 +22,7 @@ Bedrock.ServiceBase = function () {
     };
 
     $.get = function (parameters, onSuccess) {
-        this.getFromQuery (getQuery (parameters), onSuccess);
+        $.getFromQuery ($.getQuery (parameters), onSuccess);
     };
 
     return $;
