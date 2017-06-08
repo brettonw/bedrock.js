@@ -6,7 +6,7 @@ Bedrock.ServiceBase = function () {
         let divider = "?";
         for (let name of Object.keys (parameters)) {
             let parameter = parameters[name];
-            query += divider + input.name + "=" + parameter;
+            query += divider + name + "=" + parameter;
             divider = "&"
         }
         return query;
