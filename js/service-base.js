@@ -13,7 +13,7 @@ Bedrock.ServiceBase = function () {
     };
 
     $.getFromQuery = function (query, onSuccess) {
-        Bedrock.get (query, function (response) {
+        Bedrock.Http.get (query, function (response) {
             console.log (query + " (status: " + response.status + ")");
             if (response.status === "ok") {
                 onSuccess (response.response);
