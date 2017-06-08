@@ -1,5 +1,8 @@
-let Forms = function () {
+Bedrock.Forms = function () {
     let _ = Object.create (Bedrock.Base);
+
+    // import a few things
+    let Html = Bedrock.Html;
 
     let forms = {};
 
@@ -25,16 +28,16 @@ let Forms = function () {
 
         // parameters.div - where to put the form
         let divElement = document.getElementById(parameters.div);
-        divElement = addElement(divElement, "div", { class : "form-container" });
+        divElement = Html.addElement(divElement, "div", { class : "form-container" });
 
         // parameters.inputs - array of input names, with prompt, type, default value, template, and required flag
         // input = { name: "nm", type: "text|checkbox|select", label: "blah", required: true, (...values appropriate for input type...) }
         let inputs = this.inputs = {};
         for (let input of parameters.inputs) {
             // create the div and set the title
-            let formDivElement = addElement (divElement, "div", { class: "form-div" });
-            addElement (formDivElement, "div", { class: "form-title-div", innerHTML: input.label });
-            let parentDiv = addElement (formDivElement, "div", { class: "form-input-div"});
+            let formDivElement = Html.addElement (divElement, "div", { class: "form-div" });
+            Html.addElement (formDivElement, "div", { class: "form-title-div", innerHTML: input.label });
+            let parentDiv = Html.addElement (formDivElement, "div", { class: "form-input-div"});
 
             // now add the actual input
             let inputObject = inputs[input.name] = {
@@ -48,7 +51,7 @@ let Forms = function () {
             switch (input.type) {
                 case _.TEXT: {
                     let value = ("value" in input) ? input.value : "";
-                    inputObject.inputElement = addElement (parentDiv, "input", {
+                    inputObject.inputElement = Html.addElement (parentDiv, "input", {
                         id: inputElementId,
                         type: _.TEXT,
                         class: "form-input",
@@ -63,7 +66,7 @@ let Forms = function () {
                 }
                 case _.CHECKBOX: {
                     let checked = ("checked" in input) ? input.checked : false;
-                    inputObject.inputElement = addElement (parentDiv, "input", {
+                    inputObject.inputElement = Html.addElement (parentDiv, "input", {
                         id: inputElementId,
                         type: _.CHECKBOX,
                         class: "form-input",
@@ -73,14 +76,14 @@ let Forms = function () {
                     break;
                 }
                 case _.SELECT: {
-                    let inputElement = inputObject.inputElement = addElement (parentDiv, _.SELECT, {
+                    let inputElement = inputObject.inputElement = Html.addElement (parentDiv, _.SELECT, {
                         id: inputElementId,
                         class: "form-input"
                     });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
                         let label = ((option === Object (option)) && ("label" in option)) ? option.label : value;
-                        addElement (inputElement, "option", { value: value, innerHTML: label });
+                        Html.addElement (inputElement, "option", { value: value, innerHTML: label });
                     }
                     let value = ("value" in input) ? input.value : inputObject.inputElement.value;
                     inputObject.value = value;
@@ -108,12 +111,12 @@ let Forms = function () {
             }
 
             // and now add the error element
-            inputObject.errorElement = addElement (formDivElement, "div", { id: (formName + ERROR + input.name), class: "form-error", innerHTML: inputObject.required ? "REQUIRED" : "" });
+            inputObject.errorElement = Html.addElement (formDivElement, "div", { id: (formName + ERROR + input.name), class: "form-error", innerHTML: inputObject.required ? "REQUIRED" : "" });
         }
 
         // now add the submit button
-        let formDivElement = addElement (divElement, "div", { classes: ["form-div", "form-button-wrapper"] });
-        addElement (formDivElement, "input", { type: "button", value: "SUBMIT", class: "form-submit-button", onclick: function () { forms[formName].handleClickSubmit (); }  });
+        let formDivElement = Html.addElement (divElement, "div", { classes: ["form-div", "form-button-wrapper"] });
+        Html.addElement (formDivElement, "input", { type: "button", value: "SUBMIT", class: "form-submit-button", onclick: function () { forms[formName].handleClickSubmit (); }  });
 
         return this;
     };
@@ -172,25 +175,44 @@ let Forms = function () {
         }
     };
 
-    _.getInputValues = function () {
-        let now = new Date ().getTime ();
-        let result = "api?event=" + this.name + "&timestamp=" + now;
+    _.getValues = function () {
+        let result = {
+            event: this.name
+        };
         let keys = Object.keys (this.inputs);
         for (let key of keys) {
             let input = this.inputs[key];
-            result += "&" + input.name + "=";
             switch (input.type) {
                 case _.CHECKBOX:
-                    result += input.inputElement.checked;
+                    result[input.name] = input.inputElement.checked;
                     break;
                 case _.TEXT:
                 case _.SELECT:
                 case _.LIST:
-                    result += input.inputElement.value;
+                    result[input.name] = input.inputElement.value;
                     break;
             }
         }
         return result;
+    };
+
+    _.setValues = function (values) {
+        let keys = Object.keys (this.inputs);
+        for (let key of keys) {
+            if (key in values) {
+                let input = this.inputs[key];
+                switch (input.type) {
+                    case _.CHECKBOX:
+                        input.inputElement.checked = values[key];
+                        break;
+                    case _.TEXT:
+                    case _.SELECT:
+                    case _.LIST:
+                        input.inputElement.value = values[key];
+                        break;
+                }
+            }
+        }
     };
 
 

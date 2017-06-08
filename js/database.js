@@ -1,5 +1,7 @@
-let Database = function () {
+Bedrock.Database = function () {
     let $ = Object.create (null);
+
+    let Html = Bedrock.Html;
 
     // getAllFields - traverses an array of objects to produce an object that contains all
     // the field names, and all the associated values of each field
@@ -119,10 +121,10 @@ let Database = function () {
             let fieldKeys = parameters.fieldKeys;
 
             // create the element container
-            this.elementContainer = addElement (parameters.div, "div", { class: "database-element-container", id: "filterElementContainer" + index });
+            this.elementContainer = Html.addElement (parameters.div, "div", { class: "database-element-container", id: "filterElementContainer" + index });
 
             // create the select and editing elements inside the container
-            this.countDiv = addElement (this.elementContainer, "div", { class: "database-element-text-div" });
+            this.countDiv = Html.addElement (this.elementContainer, "div", { class: "database-element-text-div" });
             //this.fieldComboBox = addComboBoxElement (this.elementContainer, FILTER_ELEMENT_FIELD + index, fieldKeys, filterField, "FILTER FIELD");
 
             let fieldComboBox = this.fieldComboBox = Bedrock.ComboBox.new ({
@@ -139,7 +141,7 @@ let Database = function () {
 
 
             let database = this.databaseSource.getDatabase ();
-            let allFields = Database.getAllFields (database);
+            let allFields = $.getAllFields (database);
             //this.valueElement = addComboBoxElement(this.elementContainer, FILTER_ELEMENT_VALUE + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
             let valueComboBox = this.valueComboBox = Bedrock.ComboBox.new ({
@@ -162,7 +164,7 @@ let Database = function () {
         _.update = function () {
             // rebuild the value options
             let database = this.databaseSource.getDatabase ();
-            let allFields = Database.getAllFields (database);
+            let allFields = $.getAllFields (database);
             this.valueComboBox.setOptions ((this.fieldComboBox.value in allFields) ? allFields[this.fieldComboBox.value] : []);
 
             this.finishUpdate ();
@@ -189,7 +191,7 @@ let Database = function () {
 
             // rebuild the value select
             let database = this.databaseSource.getDatabase ();
-            let allFields = Database.getAllFields (database);
+            let allFields = $.getAllFields (database);
             this.valueComboBox
                 .setOptions ((this.fieldComboBox.value in allFields) ? allFields[this.fieldComboBox.value] : [])
                 .value = filterValue;
@@ -312,23 +314,19 @@ let Database = function () {
         };
 
         _.reset = function () {
+            // scope this so I can use it in closures
+            let scope = this;
+
             // get the filter container and clean it out
             let filterContainer = document.getElementById ("filterContainer");
             while (filterContainer.firstChild) {
                 filterContainer.removeChild (filterContainer.firstChild);
             }
 
-            // create the element containers elements
-            /*
-            for (let index = 0; index < this.elementCount; ++index) {
-                addElement(filterContainer, "div", { class: "database-element-container", id: "filterElementContainer" + index });
-            }
-            */
-
             // now create the filter elements
             this.filters = [];
             for (let index = 0; index < this.elementCount; ++index) {
-                this.filters.push (Database.FilterElement.new ({
+                this.filters.push ($.FilterElement.new ({
                     div: filterContainer,
                     index: index,
                     fieldKeys: this.fieldKeys,
@@ -339,12 +337,12 @@ let Database = function () {
             }
 
             // drop in the clear button
-            let clearButtonElementContainer = addElement (filterContainer, "div", { class: "database-element-container" });
-            addElement (clearButtonElementContainer, "div", { class: "database-element-text-div" });
-            let clearButtonElementDiv = addElement (clearButtonElementContainer, "div", { class: "bedrockElementDiv" });
-            addElement (clearButtonElementDiv, "button", {
+            let clearButtonElementContainer = Html.addElement (filterContainer, "div", { class: "database-element-container" });
+            Html.addElement (clearButtonElementContainer, "div", { class: "database-element-text-div" });
+            let clearButtonElementDiv = Html.addElement (clearButtonElementContainer, "div", { class: "bedrockElementDiv" });
+            Html.addElement (clearButtonElementDiv, "button", {
                 class: "bedrockClearButton", onclick: function () {
-                    theBedrock.filter.reset ();
+                    scope.reset ();
                 }
             }).innerHTML = "CLEAR";
 
@@ -385,7 +383,7 @@ let Database = function () {
 
             this.sorts = [];
             for (let index = 0; index < this.elementCount; ++index) {
-                this.sorts.push (Database.SortElement.new ({
+                this.sorts.push ($.SortElement.new ({
                     index: index,
                     fieldKeys: this.fieldKeys,
                     owner: this,
@@ -401,22 +399,22 @@ let Database = function () {
         return _;
     } ();
 
-    $.Bedrock = function () {
+    $.Container = function () {
         let _ = Object.create (Bedrock.Base);
 
         _.init = function (parameters) {
-            this.databaseSource = Database.Source.new (parameters.database);
-            this.fieldKeys = Object.keys (Database.getAllFields (parameters.database)).sort ();
+            this.databaseSource = $.Source.new (parameters.database);
+            this.fieldKeys = Object.keys ($.getAllFields (parameters.database)).sort ();
             this.onUpdate = parameters.onUpdate;
 
             // get the top level container
             let bedrockContainerId = ("div" in parameters) ? parameters.div : "bedrockContainer";
             let bedrockContainer = document.getElementById (bedrockContainerId);
-            addElement (bedrockContainer, "div", { class: "bedrock-database-group-container", id: "filterContainer" });
-            addElement (bedrockContainer, "div", { class: "bedrock-database-group-container", id: "sortContainer" });
+            Html.addElement (bedrockContainer, "div", { class: "bedrock-database-group-container", id: "filterContainer" });
+            Html.addElement (bedrockContainer, "div", { class: "bedrock-database-group-container", id: "sortContainer" });
 
             // create the filter
-            this.filter = Database.Filter.new ({
+            this.filter = $.Filter.new ({
                 databaseSource: this.databaseSource,
                 fieldKeys: this.fieldKeys,
                 owner: this,
@@ -425,7 +423,7 @@ let Database = function () {
             });
 /*
             // create the sort control
-            this.sort = Database.Sort.new ({
+            this.sort = $.Sort.new ({
                 databaseSource: this.databaseSource,
                 fieldKeys: this.fieldKeys,
                 owner: this,
@@ -450,7 +448,3 @@ let Database = function () {
     return $;
 } ();
 
-let theBedrock;
-let makeBedrock = function (parameters) {
-    theBedrock = Database.Bedrock.new (parameters);
-};

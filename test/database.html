@@ -36,15 +36,16 @@
 </html>
 
 <script src="../js/bedrock.js"></script>
+<script src="../js/http.js"></script>
 <script src="../js/html.js"></script>
 <script src="../js/combobox.js"></script>
 <script src="../js/database.js"></script>
 <script>
     let now = new Date ().getTime ();
-    Bedrock.get ("bsc5-short.json?" + now, function (response) {
+    Bedrock.Http.get ("bsc5-short.json?" + now, function (response) {
         let database = response;
         console.log ("loaded.");
-        makeBedrock ({
+        Bedrock.Database.Container.new ({
             div: "bedrock-container",
             database: database,
             filterValues: [{ "field": "N" }],

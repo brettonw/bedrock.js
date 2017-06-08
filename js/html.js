@@ -20,48 +20,54 @@ let div = function (cssClass, content) {
     return block ("div", { "class": cssClass }, content);
 };
 
-let addElement = function (parent, tag, options, before) {
-    let element = document.createElement (tag);
-    let optionNames = Object.keys (options);
-    for (let optionName of optionNames) {
-        switch (optionName) {
-            case "class": {
-                element.classList.add (options.class);
-                break;
-            }
-            case "classes": {
-                for (let cssClass of options.classes) {
-                    element.classList.add (cssClass);
+
+Bedrock.Html = function () {
+    let $ = Object.create (null);
+
+    $.addElement = function (parent, tag, options, before) {
+        let element = document.createElement (tag);
+        let optionNames = Object.keys (options);
+        for (let optionName of optionNames) {
+            switch (optionName) {
+                case "class": {
+                    element.classList.add (options.class);
+                    break;
                 }
-                break;
-            }
-            case "style": {
-                for (let style of Object.keys (options.style)) {
-                    element.style[style] = options.style[style];
+                case "classes": {
+                    for (let cssClass of options.classes) {
+                        element.classList.add (cssClass);
+                    }
+                    break;
                 }
-                break;
-            }
-            default: {
-                element[optionName] = options[optionName];
-                break;
+                case "style": {
+                    for (let style of Object.keys (options.style)) {
+                        element.style[style] = options.style[style];
+                    }
+                    break;
+                }
+                default: {
+                    element[optionName] = options[optionName];
+                    break;
+                }
             }
         }
-    }
-    parent.insertBefore(element, (typeof before !== "undefined") ? before : null);
-    return element;
-};
+        parent.insertBefore (element, (typeof before !== "undefined") ? before : null);
+        return element;
+    };
 
-/**
- * Utility function to tell if an element is in view in the scrolling region of a container
- * @param element
- * @param view
- * @returns {boolean}
- */
-let elementIsInView = function (element, view) {
-    let viewTop = view.scrollTop;
-    let viewBottom = view.offsetHeight + viewTop;
-    let elementTop = element.offsetTop;
-    let elementBottom = elementTop + element.offsetHeight;
-    return ((elementBottom <= viewBottom) && (elementTop >= viewTop));
-};
+    /**
+     * Utility function to tell if an element is in view in the scrolling region of a container
+     * @param element
+     * @param view
+     * @returns {boolean}
+     */
+    $.elementIsInView = function (element, view) {
+        let viewTop = view.scrollTop;
+        let viewBottom = view.offsetHeight + viewTop;
+        let elementTop = element.offsetTop;
+        let elementBottom = elementTop + element.offsetHeight;
+        return ((elementBottom <= viewBottom) && (elementTop >= viewTop));
+    };
 
+    return $;
+} ();

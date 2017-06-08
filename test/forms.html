@@ -35,9 +35,11 @@
 <script src="../js/forms.js"></script>
 <script>
     let testResponse = function (form) {
-        console.log (form.getInputValues ());
+        console.log (form.getValues ());
         form.reset ();
     };
+
+    let Forms = Bedrock.Forms;
 
     Forms.new ({
         name: "testA",
@@ -46,7 +48,8 @@
             { name: "a", type: Forms.TEXT, label: "A", required: true, placeholder: "YYYY-MM-DD", pattern: /\d\d\d\d-\d\d-\d\d/, value: "MMMM-YY-DD" },
             { name: "b", type: Forms.CHECKBOX, label: "B", required: true },
             { name: "c", type: Forms.CHECKBOX, label: "C", checked: true },
-            { name: "d", type: Forms.LIST, label: "Enter One:", placeholder: "Something", value: "y", options: [{ value: "w", label: "Cap W" }, "X", "y", "z"] }
+            { name: "d", type: Forms.LIST, label: "Enter One:", placeholder: "Something", value: "y", options: [{ value: "w", label: "Cap W" }, "X", "y", "z"] },
+            { name: "e", type: Forms.LIST, label: "Enter Another:", required: true, placeholder: "Something", options: [{ value: "w", label: "Cap W" }, "X", "y", "z"] }
         ],
         completion: testResponse
     });

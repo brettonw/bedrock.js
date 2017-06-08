@@ -1,6 +1,8 @@
 Bedrock.ComboBox = function () {
     let _ = Object.create(Bedrock.Base);
 
+    let Html = Bedrock.Html;
+
     let indexById = {};
 
     _.getById = function (inputElementId) {
@@ -54,7 +56,7 @@ Bedrock.ComboBox = function () {
                         }
 
                         // now create the input element
-                        inputElement = addElement (parentElement, "input", inputElementParameters);
+                        inputElement = Html.addElement (parentElement, "input", inputElementParameters);
                     } else {
                         // fatal error, don't know where to create the input
                         console.log ("ERROR: expected 'parentElementId' or 'parentElement'.");
@@ -80,8 +82,8 @@ Bedrock.ComboBox = function () {
             // in the document flow, and create our options container inside that - the pseudo-
             // parent has position relative with sizes of 0, and the child is placed with
             // absolute position under that. See the CSS file for details.
-            let pseudoParentElement = addElement (parentElement, "div", { class: "combobox-pseudo-parent" }, inputElement.nextSibling);
-            let optionsElement = this.optionsElement = addElement (pseudoParentElement, "div", { id: inputElementId + "-options", class: "combobox-options" });
+            let pseudoParentElement = Html.addElement (parentElement, "div", { class: "combobox-pseudo-parent" }, inputElement.nextSibling);
+            let optionsElement = this.optionsElement = Html.addElement (pseudoParentElement, "div", { id: inputElementId + "-options", class: "combobox-options" });
 
             // set the options
             this.setOptions (parameters.options);
@@ -232,7 +234,7 @@ Bedrock.ComboBox = function () {
         // take the inputElement value and use it to filter the list
         for (let option of this.options) {
             if (option.matchTarget.match (regex)) {
-                let comboBoxOption = addElement (optionsElement, "div", {
+                let comboBoxOption = Html.addElement (optionsElement, "div", {
                     class: "combobox-option",
                     onmousedown: function () {
                         inputElement.value = option.value;
@@ -264,8 +266,8 @@ Bedrock.ComboBox = function () {
 
                 //comboBoxOption.innerHTML = ("label" in option) ? option.label : option.value;
                 if ("label" in option) {
-                    addElement (comboBoxOption, "div", { style: { float: "left" }}).innerHTML = display;
-                    addElement (comboBoxOption, "div", { class: "combobox-option-label" }).innerHTML = option.label;
+                    Html.addElement (comboBoxOption, "div", { style: { float: "left" }}).innerHTML = display;
+                    Html.addElement (comboBoxOption, "div", { class: "combobox-option-label" }).innerHTML = option.label;
                 } else {
                     comboBoxOption.innerHTML = display;
                 }
