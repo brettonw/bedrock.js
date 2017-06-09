@@ -55,6 +55,11 @@ Bedrock.ComboBox = function () {
                             inputElementParameters.classes.push (parameters.class);
                         }
 
+                        // depending on whether there is "style" in the parameters
+                        if ("style" in parameters) {
+                            inputElementParameters.style = parameters.style;
+                        }
+
                         // now create the input element
                         inputElement = Html.addElement (parentElement, "input", inputElementParameters);
                     } else {

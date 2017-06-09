@@ -128,6 +128,7 @@ Bedrock.Database = function () {
             //this.fieldComboBox = addComboBoxElement (this.elementContainer, FILTER_ELEMENT_FIELD + index, fieldKeys, filterField, "FILTER FIELD");
 
             let fieldComboBox = this.fieldComboBox = Bedrock.ComboBox.new ({
+                style: { width: "100%" },
                 parentElementId: this.elementContainer.id,
                 placeholder: "(FILTER FIELD)",
                 inputElementId: FILTER_ELEMENT_FIELD + index,
@@ -145,6 +146,7 @@ Bedrock.Database = function () {
             //this.valueElement = addComboBoxElement(this.elementContainer, FILTER_ELEMENT_VALUE + index, (filterField in allFields) ? allFields[filterField] : [], filterValue, "FILTER VALUE");
 
             let valueComboBox = this.valueComboBox = Bedrock.ComboBox.new ({
+                style: { width: "100%" },
                 parentElementId: this.elementContainer.id,
                 placeholder: "(FILTER VALUE)",
                 inputElementId: FILTER_ELEMENT_VALUE + index,
