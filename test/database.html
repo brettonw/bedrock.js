@@ -10,25 +10,35 @@
 </head>
 
 <style>
-    div[id="databaseDisplay"] {
-        margin-top: 15px;
+    div[id="bedrock-database-container"] {
+        display: inline-block;
+        font-family: sans-serif;
+        font-size: 12px;
+        text-align: left;
+        padding: 4px 0px;
+        width: 100%;
+    }
+
+    div[id="bedrock-database-display"] {
+        margin-top: 4px;
         height: 500px;
         overflow-y: scroll;
         border: solid;
-        border-width: 2px;
-        border-color: black;
+        border-width: 1px;
+        border-radius: 2px;
+        border-color: #bbb;
         padding: 4px;
     }
 
-    .databaseLine {
+    .bedrock-database-line {
         padding: 4px;
     }
 
 </style>
 
 <body>
-<div id="bedrock-container"></div>
-<div id="databaseDisplay"></div>
+<div id="bedrock-database-container"></div>
+<div id="bedrock-database-display"></div>
 </body>
 </html>
 
@@ -43,7 +53,6 @@
         let database = response;
         console.log ("loaded.");
         Bedrock.Database.Container.new ({
-            div: "bedrock-container",
             database: database,
             filterValues: [{ "field": "N" }],
             onUpdate: function (db) {
@@ -61,9 +70,9 @@
                         }
                         recordHTML += "" + key + ": " + record[key] + "";
                     }
-                    innerHTML += div ("databaseLine" + (((++i & 0x01) == 1) ? " odd" : ""), recordHTML);
+                    innerHTML += div ("bedrock-database-line" + (((++i & 0x01) == 1) ? " odd" : ""), recordHTML);
                 }
-                document.getElementById ("databaseDisplay").innerHTML = innerHTML;
+                document.getElementById ("bedrock-database-display").innerHTML = innerHTML;
             }
         });
     });

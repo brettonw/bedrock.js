@@ -7,7 +7,6 @@ Bedrock.Forms = function () {
     let forms = {};
 
     // strings used internally
-    const DATALIST = "datalist-";
     const INPUT = "-input-";
     const ERROR = "-error-";
 

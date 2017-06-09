@@ -121,10 +121,10 @@ Bedrock.Database = function () {
             let fieldKeys = parameters.fieldKeys;
 
             // create the element container
-            this.elementContainer = Html.addElement (parameters.div, "div", { class: "database-element-container", id: "filterElementContainer" + index });
+            this.elementContainer = Html.addElement (parameters.div, "div", { class: "bedrock-database-element-container", id: "filterElementContainer" + index });
 
             // create the select and editing elements inside the container
-            this.countDiv = Html.addElement (this.elementContainer, "div", { class: "database-element-text-div" });
+            this.countDiv = Html.addElement (this.elementContainer, "div", { class: "bedrock-database-element-text-div" });
             //this.fieldComboBox = addComboBoxElement (this.elementContainer, FILTER_ELEMENT_FIELD + index, fieldKeys, filterField, "FILTER FIELD");
 
             let fieldComboBox = this.fieldComboBox = Bedrock.ComboBox.new ({
@@ -208,9 +208,9 @@ Bedrock.Database = function () {
 
         let makeControls = function (index, field, type, asc, fieldKeys) {
             let innerHTML =
-                div ("bedrockElementDiv", makeSelectHTML ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
-                div ("bedrockElementDiv", makeSelectHTML ("sortElementSelectType" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
-                div ("bedrockElementDiv", makeSelectHTML ("sortElementSelectAsc" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
+                div ("bedrock-element-div", makeSelectHTML ("sortElementSelectKey" + index, fieldKeys, field, "SORT FIELD")) +
+                div ("bedrock-element-div", makeSelectHTML ("sortElementSelectType" + index, ["AUTO", "NUMERIC", "ALPHABETIC", "DATE"], type, "SORT TYPE")) +
+                div ("bedrock-element-div", makeSelectHTML ("sortElementSelectAsc" + index, ["ASCENDING", "DESCENDING"], asc, "SORT ASC"));
             return innerHTML;
         };
 
@@ -339,11 +339,11 @@ Bedrock.Database = function () {
             }
 
             // drop in the clear button
-            let clearButtonElementContainer = Html.addElement (filterContainer, "div", { class: "database-element-container" });
-            Html.addElement (clearButtonElementContainer, "div", { class: "database-element-text-div" });
-            let clearButtonElementDiv = Html.addElement (clearButtonElementContainer, "div", { class: "bedrockElementDiv" });
-            Html.addElement (clearButtonElementDiv, "button", {
-                class: "bedrockClearButton", onclick: function () {
+            let clearButtonElementContainer = Html.addElement (filterContainer, "div", { class: "bedrock-database-element-container" });
+            Html.addElement (clearButtonElementContainer, "div", { class: "bedrock-database-element-text-div" });
+            //let clearButtonElementDiv = Html.addElement (clearButtonElementContainer, "div", { class: "bedrock-element-div" });
+            Html.addElement (clearButtonElementContainer, "button", {
+                class: "bedrock-database-clear-button", onclick: function () {
                     scope.reset ();
                 }
             }).innerHTML = "CLEAR";
@@ -369,14 +369,14 @@ Bedrock.Database = function () {
             // create the select and editing elements
             let sortContainerHTML = "";
             for (let index = 0; index < this.elementCount; ++index) {
-                sortContainerHTML += block ("div", { class: "database-element-container", id: "sortElementContainer" + index }, "");
+                sortContainerHTML += block ("div", { class: "bedrock-database-element-container", id: "sortElementContainer" + index }, "");
             }
 
             // drop in the clear button
             sortContainerHTML +=
-                div ("database-element-container",
-                    div ("database-element-text-div", "") +
-                    div ("bedrockElementDiv",
+                div ("bedrock-database-element-container",
+                    div ("bedrock-database-element-text-div", "") +
+                    div ("bedrock-element-div",
                         block ("button", { class: "bedrockClearButton", type: "button", onclick: "theBedrock.sort.reset ();" }, "CLEAR")
                     )
                 );
@@ -410,7 +410,7 @@ Bedrock.Database = function () {
             this.onUpdate = parameters.onUpdate;
 
             // get the top level container
-            let bedrockContainerId = ("div" in parameters) ? parameters.div : "bedrockContainer";
+            let bedrockContainerId = ("div" in parameters) ? parameters.div : "bedrock-database-container";
             let bedrockContainer = document.getElementById (bedrockContainerId);
             Html.addElement (bedrockContainer, "div", { class: "bedrock-database-group-container", id: "filterContainer" });
             Html.addElement (bedrockContainer, "div", { class: "bedrock-database-group-container", id: "sortContainer" });
