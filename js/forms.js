@@ -4,8 +4,6 @@ Bedrock.Forms = function () {
     // import a few things
     let Html = Bedrock.Html;
 
-    let forms = {};
-
     // strings used internally
     const INPUT = "-input-";
     const ERROR = "-error-";
@@ -17,9 +15,11 @@ Bedrock.Forms = function () {
     _.CHECKBOX = "checkbox";
 
     _.init = function (parameters) {
+        // scope "this" as self so I can use it in closures
+        let scope = this;
+
         // parameters.name - name of the form (and the event to use when submitting)
         let formName = this.name = parameters.name;
-        forms[formName] = this;
 
         // parameters.submit - function to call when the user clicks submit and all the
         //                     input values pass validation
@@ -115,7 +115,7 @@ Bedrock.Forms = function () {
 
         // now add the submit button
         let formDivElement = Html.addElement (divElement, "div", { classes: ["form-div", "form-button-wrapper"] });
-        Html.addElement (formDivElement, "input", { type: "button", value: "SUBMIT", class: "form-submit-button", onclick: function () { forms[formName].handleClickSubmit (); }  });
+        Html.addElement (formDivElement, "input", { type: "button", value: "SUBMIT", class: "form-submit-button", onclick: function () { scope.handleClickSubmit (); }  });
 
         return this;
     };

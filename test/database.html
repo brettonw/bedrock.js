@@ -32,6 +32,7 @@
 
     .bedrock-database-line {
         padding: 4px;
+        color: black;
     }
 
 </style>
@@ -48,6 +49,7 @@
 <script src="../js/combobox.js"></script>
 <script src="../js/database.js"></script>
 <script>
+    let Html = Bedrock.Html;
     let now = new Date ().getTime ();
     Bedrock.Http.get ("bsc5-short.json?" + now, function (response) {
         let database = response;
@@ -56,12 +58,14 @@
             database: database,
             filterValues: [{ "field": "N" }],
             onUpdate: function (db) {
-                let innerHTML = "";
+                let bedrockDatabaseDisplay = document.getElementById ("bedrock-database-display");
+
+                Html.removeAllChildren(bedrockDatabaseDisplay);
                 let i = 0;
                 for (let record of db) {
-                    let recordHTML = "";
                     let keys = Object.keys (record).sort ();
                     let first = true;
+                    let recordHTML = "";
                     for (let key of keys) {
                         if (!first) {
                             recordHTML += ", "
@@ -70,9 +74,9 @@
                         }
                         recordHTML += "" + key + ": " + record[key] + "";
                     }
-                    innerHTML += div ("bedrock-database-line" + (((++i & 0x01) == 1) ? " odd" : ""), recordHTML);
+
+                    Html.addElement (bedrockDatabaseDisplay, "div", { classes: ((++i & 0x01) == 1) ? ["bedrock-database-line", "odd"] : ["bedrock-database-line"] }).innerHTML = recordHTML;
                 }
-                document.getElementById ("bedrock-database-display").innerHTML = innerHTML;
             }
         });
     });

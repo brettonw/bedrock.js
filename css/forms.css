@@ -7,6 +7,8 @@
     background: #fafafa;
     margin: 0px 0px 10px 15px;
     padding: 8px 12px 10px 12px;
+    font-family: sans-serif;
+    font-size: 12px;
 }
 
 .form-div {
@@ -23,7 +25,7 @@
     border-style: solid;
     border-radius: 2px;
     border-color: #777;
-    border-width: 1px;
+    border-width: 2px;
     margin-top: 10px;
 }
 
@@ -93,7 +95,3 @@ input[type=checkbox].form-input {
 .combobox-options {
     width: 325px;
 }
-
-.combobox-option {
-}
-

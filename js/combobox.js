@@ -21,6 +21,9 @@ Bedrock.ComboBox = function () {
             // reason for the event is a keypress
             this.allowMouseover = true;
 
+            // set up the option for regexp in matching, default is false
+            this.useRegExp = ("useRegExp" in parameters) ? parameters.useRegExp : false;
+
             // we will need the parentElement, this is a placeholder for it
             let inputElement, parentElement;
 
@@ -45,9 +48,8 @@ Bedrock.ComboBox = function () {
                         let inputElementParameters = {
                             classes: ["combobox-input"],
                             id: inputElementId,
-                            placeholder: ("placeholder" in parameters) ? parameters.placeholder : inputElementId,
-                            type: "text",
-                            onchange: parameters.onchange
+                            placeholder: inputElementId, // a reasonable default
+                            type: "text"
                         };
 
                         // depending on whether there is "class" in the parameters
@@ -55,10 +57,10 @@ Bedrock.ComboBox = function () {
                             inputElementParameters.classes.push (parameters.class);
                         }
 
-                        // depending on whether there is "style" in the parameters
-                        if ("style" in parameters) {
-                            inputElementParameters.style = parameters.style;
-                        }
+                        // copy a few optional values if they are present
+                        Bedrock.copyIf ("placeholder", parameters, inputElementParameters);
+                        Bedrock.copyIf ("style", parameters, inputElementParameters);
+                        Bedrock.copyIf ("onchange", parameters, inputElementParameters);
 
                         // now create the input element
                         inputElement = Html.addElement (parentElement, "input", inputElementParameters);
@@ -131,7 +133,7 @@ Bedrock.ComboBox = function () {
                             // if the newly selected current option is not visible, set the scroll
                             // pos to make it visible, and tell the options not to respond to
                             // mouseover events until the mouse moves
-                            if (!elementIsInView (self.currentOption, optionsElement)) {
+                            if (!Html.elementIsInView (self.currentOption, optionsElement)) {
                                 self.allowMouseover = false;
                                 optionsElement.scrollTop = self.currentOption.offsetTop;
                             }
@@ -153,7 +155,7 @@ Bedrock.ComboBox = function () {
                             // if the newly selected current option is not visible, set the scroll
                             // pos to make it visible, and tell the options not to respond to
                             // mouseover events until the mouse moves
-                            if (!elementIsInView (self.currentOption, optionsElement)) {
+                            if (!Html.elementIsInView (self.currentOption, optionsElement)) {
                                 self.allowMouseover = false;
                                 optionsElement.scrollTop = (self.currentOption.offsetTop - optionsElement.offsetHeight) + self.currentOption.offsetHeight;
                             }
@@ -228,18 +230,22 @@ Bedrock.ComboBox = function () {
         let inputElement = this.inputElement;
         let optionsElement = this.optionsElement;
 
-        // clear out the options
+        // clear out the options (fragment, should be one op)
         while (optionsElement.firstChild) {
             optionsElement.removeChild (optionsElement.firstChild);
         }
 
+        // try doing this on a document fragment to prevent lots of dom updates
+        let fragment = document.createDocumentFragment();
+
         // get the current value as a regex object for rapid matching
-        let regex = new RegExp (this.inputElement.value, 'i');
+        let inputElementValue = this.useRegExp ? this.inputElement.value : this.inputElement.value.replace (/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+        let regExp = new RegExp (inputElementValue, 'i');
 
         // take the inputElement value and use it to filter the list
         for (let option of this.options) {
-            if (option.matchTarget.match (regex)) {
-                let comboBoxOption = Html.addElement (optionsElement, "div", {
+            if (option.matchTarget.match (regExp)) {
+                let comboBoxOption = Html.addElement (fragment, "div", {
                     class: "combobox-option",
                     onmousedown: function () {
                         inputElement.value = option.value;
@@ -278,6 +284,9 @@ Bedrock.ComboBox = function () {
                 }
             }
         }
+
+        // add the fragment to the options element
+        optionsElement.appendChild(fragment);
 
         return this;
     };

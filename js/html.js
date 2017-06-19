@@ -24,6 +24,12 @@ let div = function (cssClass, content) {
 Bedrock.Html = function () {
     let $ = Object.create (null);
 
+    $.removeAllChildren = function (element) {
+        while (element.firstChild) {
+            element.removeChild (element.firstChild);
+        }
+    }
+
     $.addElement = function (parent, tag, options, before) {
         let element = document.createElement (tag);
         let optionNames = Object.keys (options);

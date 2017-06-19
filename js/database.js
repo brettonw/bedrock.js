@@ -70,10 +70,16 @@ Bedrock.Database = function () {
                 return database;
             }
 
-            // the individual filter function
-            let regex = new RegExp (filterValue, 'i')
+            // the individual filter function... we assume the user doesn't intend this to
+            // be a regexp if it fails to compile
+            let regExp;
+            try {
+                regExp = new RegExp (filterValue, 'i');
+            } catch (error) {
+                regExp = new RegExp (filterValue.replace (/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&"), 'i')
+            }
             let matchValue = function (value) {
-                let matchResult = value.toString().match (regex);
+                let matchResult = value.toString().match (regExp);
                 return ((matchResult != null) === shouldMatch);
             };
 
@@ -341,7 +347,6 @@ Bedrock.Database = function () {
             // drop in the clear button
             let clearButtonElementContainer = Html.addElement (filterContainer, "div", { class: "bedrock-database-element-container" });
             Html.addElement (clearButtonElementContainer, "div", { class: "bedrock-database-element-text-div" });
-            //let clearButtonElementDiv = Html.addElement (clearButtonElementContainer, "div", { class: "bedrock-element-div" });
             Html.addElement (clearButtonElementContainer, "button", {
                 class: "bedrock-database-clear-button", onclick: function () {
                     scope.reset ();
