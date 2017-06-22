@@ -60,7 +60,7 @@ Bedrock.Html = function () {
     };
 
     $.addElement = function (parent, tag, options, before) {
-        let element = makeElement(tag, options);
+        let element = $.makeElement(tag, options);
         parent.insertBefore (element, (typeof before !== "undefined") ? before : null);
         return element;
     };
