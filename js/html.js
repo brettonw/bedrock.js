@@ -20,7 +20,6 @@ let div = function (cssClass, content) {
     return block ("div", { "class": cssClass }, content);
 };
 
-
 Bedrock.Html = function () {
     let $ = Object.create (null);
 
@@ -28,9 +27,9 @@ Bedrock.Html = function () {
         while (element.firstChild) {
             element.removeChild (element.firstChild);
         }
-    }
+    };
 
-    $.addElement = function (parent, tag, options, before) {
+    $.makeElement = function (tag, options) {
         let element = document.createElement (tag);
         let optionNames = Object.keys (options);
         for (let optionName of optionNames) {
@@ -57,6 +56,11 @@ Bedrock.Html = function () {
                 }
             }
         }
+        return element;
+    };
+
+    $.addElement = function (parent, tag, options, before) {
+        let element = makeElement(tag, options);
         parent.insertBefore (element, (typeof before !== "undefined") ? before : null);
         return element;
     };
@@ -75,5 +79,60 @@ Bedrock.Html = function () {
         return ((elementBottom <= viewBottom) && (elementTop >= viewTop));
     };
 
+    $.Builder = function () {
+        let _ = Object.create (Bedrock.Base);
+
+        _.init = function (parameters) {
+            this.parentBuilder = ("parentBuilder" in parameters) ? parameters.parentBuilder : null;
+            this.elementType = parameters.elementType;
+            this.elementParameters = parameters.elementParameters;
+            this.builders = [];
+            return this;
+        };
+
+        _.addBuilder = function (builder) {
+            this.builders.push (builder);
+            return this;
+        };
+
+        _.add = function (elementType, elementParameters) {
+            // if this method is called as a static, this is creating a new builder
+            return (this === _) ?
+                _.new ({ elementType: elementType, elementParameters: elementParameters }).build () :
+                this.addBuilder (_.new ( { parentBuilder: this, elementType: elementType, elementParameters: elementParameters }));
+        };
+
+        _.beginBuilder = function (builder) {
+            this.builders.push (builder);
+            return builder;
+        };
+
+        _.begin = function (elementType, elementParameters) {
+            // if this method is called as a static, this is creating a new builder
+            return (this === _) ?
+                _.new ({ elementType: elementType, elementParameters: elementParameters }) :
+                this.beginBuilder (_.new ({ parentBuilder: this, elementType: elementType, elementParameters: elementParameters }));
+        };
+
+        _.end = function () {
+            return (this.parentBuilder !== null) ? this.parentBuilder : this.build ();
+        };
+
+        _.build = function () {
+            // create my element
+            let element = $.makeElement (this.elementType, this.elementParameters);
+
+            // walk down the builders, building in turn
+            for (let builder of this.builders) {
+                element.appendChild(builder.build ())
+            }
+
+            return element;
+        };
+
+        return _;
+    } ();
+
     return $;
 } ();
+
