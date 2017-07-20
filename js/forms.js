@@ -26,9 +26,9 @@ Bedrock.Forms = function () {
         this.completion = parameters.completion;
 
         // parameters.onupdate - function to call when any value changes in the form
-        let onUpdate = function () {
+        let onUpdate = function (updatedName) {
             if ("onUpdate" in parameters) {
-                parameters.onUpdate (scope);
+                parameters.onUpdate (updatedName, scope);
             }
         };
 
@@ -63,7 +63,7 @@ Bedrock.Forms = function () {
                         class: "form-input",
                         placeholder: input.placeholder,
                         value: value,
-                        onchange: onUpdate
+                        onchange: function () { onUpdate (input.name); }
                     });
                     // this is a value stored for reset
                     inputObject.value = value;
@@ -79,7 +79,7 @@ Bedrock.Forms = function () {
                         type: _.CHECKBOX,
                         class: "form-input",
                         checked: checked,
-                        onchange: onUpdate
+                        onchange: function () { onUpdate (input.name); }
                     });
                     // this is a value stored for reset
                     inputObject.checked = checked;
@@ -89,7 +89,7 @@ Bedrock.Forms = function () {
                     let inputElement = inputObject.inputElement = Html.addElement (parentDiv, _.SELECT, {
                         id: inputElementId,
                         class: "form-input",
-                        onchange: onUpdate
+                        onchange: function () { onUpdate (input.name); }
                     });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
@@ -110,7 +110,7 @@ Bedrock.Forms = function () {
                         inputElementId: inputElementId,
                         options: input.options,
                         value: value,
-                        onchange: onUpdate
+                        onchange: function () { onUpdate (input.name); }
                     });
 
                     // this is a value stored for reset

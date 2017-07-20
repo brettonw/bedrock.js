@@ -51,9 +51,9 @@
             { name: "d", type: Forms.LIST, label: "Enter One:", placeholder: "Something", value: "y", options: [{ value: "w", label: "Cap W" }, "X", "y", "z"] },
             { name: "e", type: Forms.LIST, label: "Enter Another:", required: true, placeholder: "Something", options: [{ value: "w", label: "Cap W" }, "X", "y", "z"] }
         ],
-        onUpdate: function (scope) {
+        onUpdate: function (updatedName, scope) {
             let values = scope.getValues();
-            console.log (values);
+            console.log ("updated: " + updatedName + ", " + values);
         },
         completion: testResponse
     });
