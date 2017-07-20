@@ -21,9 +21,16 @@ Bedrock.Forms = function () {
         // parameters.name - name of the form (and the event to use when submitting)
         let formName = this.name = parameters.name;
 
-        // parameters.submit - function to call when the user clicks submit and all the
+        // parameters.completion - function to call when the user clicks submit and all the
         //                     input values pass validation
         this.completion = parameters.completion;
+
+        // parameters.onupdate - function to call when any value changes in the form
+        let onUpdate = function () {
+            if ("onUpdate" in parameters) {
+                parameters.onUpdate (scope);
+            }
+        };
 
         // parameters.div - where to put the form
         let divElement = document.getElementById(parameters.div);
@@ -55,8 +62,10 @@ Bedrock.Forms = function () {
                         type: _.TEXT,
                         class: "form-input",
                         placeholder: input.placeholder,
-                        value: value
+                        value: value,
+                        onchange: onUpdate
                     });
+                    // this is a value stored for reset
                     inputObject.value = value;
                     if ("pattern" in input) {
                         inputObject.pattern = input.pattern;
@@ -69,15 +78,18 @@ Bedrock.Forms = function () {
                         id: inputElementId,
                         type: _.CHECKBOX,
                         class: "form-input",
-                        checked: checked
+                        checked: checked,
+                        onchange: onUpdate
                     });
+                    // this is a value stored for reset
                     inputObject.checked = checked;
                     break;
                 }
                 case _.SELECT: {
                     let inputElement = inputObject.inputElement = Html.addElement (parentDiv, _.SELECT, {
                         id: inputElementId,
-                        class: "form-input"
+                        class: "form-input",
+                        onchange: onUpdate
                     });
                     for (let option of input.options) {
                         let value = (option === Object (option)) ? option.value : option;
@@ -85,8 +97,7 @@ Bedrock.Forms = function () {
                         Html.addElement (inputElement, "option", { value: value, innerHTML: label });
                     }
                     let value = ("value" in input) ? input.value : inputObject.inputElement.value;
-                    inputObject.value = value;
-                    inputObject.inputElement.value = value;
+                    inputObject.inputElement.value = inputObject.value = value;
                     break;
                 }
                 case _.LIST: {
@@ -98,8 +109,11 @@ Bedrock.Forms = function () {
                         placeholder: input.placeholder,
                         inputElementId: inputElementId,
                         options: input.options,
-                        value: value
+                        value: value,
+                        onchange: onUpdate
                     });
+
+                    // this is a value stored for reset
                     inputObject.value = value;
 
                     if ("pattern" in input) {
