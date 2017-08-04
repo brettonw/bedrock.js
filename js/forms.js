@@ -23,7 +23,6 @@ Bedrock.Forms = function () {
         return result;
     };
 
-
     _.init = function (parameters) {
         // scope "this" as self so I can use it in closures
         let scope = this;
