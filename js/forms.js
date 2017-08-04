@@ -14,6 +14,16 @@ Bedrock.Forms = function () {
     _.TEXT = "text";
     _.CHECKBOX = "checkbox";
 
+    // utility function
+    let randomString = function (length, chars) {
+        var result = "";
+        for (let i = 0; i < length; ++i) {
+            result += chars[Math.floor (Math.random () * chars.length)];
+        }
+        return result;
+    };
+
+
     _.init = function (parameters) {
         // scope "this" as self so I can use it in closures
         let scope = this;
@@ -53,7 +63,7 @@ Bedrock.Forms = function () {
             };
 
             // and the input element depending on the type
-            let inputElementId = formName + INPUT + input.name;
+            let inputElementId = formName + "-" + randomString (8, "0123456789ABCDEF") + INPUT + input.name;
             switch (input.type) {
                 case _.TEXT: {
                     let value = ("value" in input) ? input.value : "";
@@ -124,7 +134,7 @@ Bedrock.Forms = function () {
             }
 
             // and now add the error element
-            inputObject.errorElement = Html.addElement (formDivElement, "div", { id: (formName + ERROR + input.name), class: "form-error", innerHTML: inputObject.required ? "REQUIRED" : "" });
+            inputObject.errorElement = Html.addElement (formDivElement, "div", { id: (formName + "-" + randomString (8, "0123456789ABCDEF") + ERROR + input.name), class: "form-error", innerHTML: inputObject.required ? "REQUIRED" : "" });
         }
 
         // now add the submit button
