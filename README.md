@@ -1,3 +1,8 @@
+# DEPRECATED
+
+Bedrock.js is now Bedrock (https://github.com/brettonw/Bedrock)
+
+
 # bedrock.js
 Base Javascript code for websites.
 
